@@ -6,7 +6,7 @@ interface AgingValue<T> {
 export default class AgingCache<TKey, TValue> {
   constructor(
     maxEntries: number | undefined = undefined, 
-    maxAge: number = 1000000, 
+    maxAge: number = 2000000, 
     purgeInterval: number = 10000) {
     this.maxEntries = maxEntries;
     this.maxAge = maxAge;
@@ -33,9 +33,17 @@ export default class AgingCache<TKey, TValue> {
       this.evict();
     }
 
+    if (this.entries.has(key)) {
+      this.entries.delete(key);
+    }
+
     const cacheEntryTime = { time: Date.now(), data: value };
     this.entries.set(key, cacheEntryTime);
     this.evictQueue.push(key);
+  }
+
+  keys = () => {
+    return this.evictQueue.slice();
   }
 
   private evict = () => {

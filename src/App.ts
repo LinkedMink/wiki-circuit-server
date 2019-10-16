@@ -1,6 +1,8 @@
 import fs from 'fs';
 import express from 'express';
+import bodyParser from 'body-parser';
 import morgan from 'morgan';
+import cors from 'cors';
 
 import addJobRoutes from './Routes/Job';
 import { getMessageObject } from './Types/Request';
@@ -14,6 +16,8 @@ function loadConfig(configFileName: string) {
 const config = loadConfig("config.json");
 
 const app = express();
+app.use(bodyParser.json());
+app.use(cors({origin: config.allowedOrigins}));
 app.use(morgan('combined'))
 
 app.get('/', function(req, res) {
