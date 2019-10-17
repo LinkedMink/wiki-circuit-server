@@ -6,7 +6,7 @@ interface AgingValue<T> {
 export default class AgingCache<TKey, TValue> {
   constructor(
     maxEntries: number | undefined = undefined, 
-    maxAge: number = 4000000, // 66 Min
+    maxAge: number = 12000000, // 200 Min
     purgeInterval: number = 30000) {
     this.maxEntries = maxEntries;
     this.maxAge = maxAge;

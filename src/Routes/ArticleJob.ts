@@ -206,6 +206,10 @@ export class ArticleJob {
     document(WIKIPEDIA_CONTENT_ID)
       .find(`a[href^='${WIKIPEDIA_ARTICLE_PREFIX}']`)
       .each(function(index, element) {
+        if (document(element).parents(WIKIPEDIA_AUTHORITY_BLOCK_ID).length > 0) {
+          return;
+        };
+
         const linkName = element.attribs.href.substring(WIKIPEDIA_ARTICLE_PREFIX.length);
         if (!testWikipediaNamespaceRegEx.test(linkName)) {
           if (links[linkName] === undefined) {
@@ -248,23 +252,23 @@ export class ArticleJob {
   }
 
   private getSortedResult = () => {
-    let targetArticle: ArticleData | undefined;
+    //let targetArticle: ArticleData | undefined;
     const resultArray = [];
     for (const result of this.result) {
-      if (result[0] === this.articleName) {
-        targetArticle = result[1];
-      } else {
+      //if (result[0] === this.articleName) {
+      //  targetArticle = result[1];
+      //} else {
         resultArray.push(result[1]);
-      }
+      //}
     }
 
     const sortedResult = resultArray.sort(function(a, b) {
       return b.referenceCount - a.referenceCount;
     });
 
-    if (targetArticle) {
-      sortedResult.unshift(targetArticle);
-    }
+    //if (targetArticle) {
+    //  sortedResult.unshift(targetArticle);
+    //}
 
     return sortedResult;
   }
