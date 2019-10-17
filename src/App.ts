@@ -17,7 +17,10 @@ const config = loadConfig("config.json");
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors({origin: config.allowedOrigins}));
+app.use(cors({
+  origin: config.allowedOrigins,
+  optionsSuccessStatus: 200
+}));
 app.use(morgan('combined'))
 
 app.get('/', function(req, res) {

@@ -46,7 +46,9 @@ const MAX_PARALLEL_DOWNLOADS = 5;
 const MAX_ARTICLE_DEPTH = 3;
 const WIKIPEDIA_ARTICLE_BASE_URL = 'https://en.wikipedia.org/wiki/';
 const WIKIPEDIA_ARTICLE_PREFIX = '/wiki/';
-const KEEP_FINISHED_JOB_MILLISECONDS = 60000;
+const WIKIPEDIA_CONTENT_ID = '#mw-content-text';
+const WIKIPEDIA_AUTHORITY_BLOCK_ID = '#Authority_control_files';
+const KEEP_FINISHED_JOB_MILLISECONDS = 120000;
 
 interface LinkTotals {
   links: number;
@@ -201,7 +203,7 @@ export class ArticleJob {
     const links: { [s: string]: number; } = {};
 
     const document = cheerio.load(text);
-    document('#bodyContent')
+    document(WIKIPEDIA_CONTENT_ID)
       .find(`a[href^='${WIKIPEDIA_ARTICLE_PREFIX}']`)
       .each(function(index, element) {
         const linkName = element.attribs.href.substring(WIKIPEDIA_ARTICLE_PREFIX.length);
@@ -246,14 +248,25 @@ export class ArticleJob {
   }
 
   private getSortedResult = () => {
+    let targetArticle: ArticleData | undefined;
     const resultArray = [];
     for (const result of this.result) {
-      resultArray.push(result[1]);
+      if (result[0] === this.articleName) {
+        targetArticle = result[1];
+      } else {
+        resultArray.push(result[1]);
+      }
     }
 
-    return resultArray.sort(function(a, b) {
-      return a.referenceCount - b.referenceCount;
+    const sortedResult = resultArray.sort(function(a, b) {
+      return b.referenceCount - a.referenceCount;
     });
+
+    if (targetArticle) {
+      sortedResult.unshift(targetArticle);
+    }
+
+    return sortedResult;
   }
 
   private finishSuccess = () => {
