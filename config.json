@@ -1,4 +1,11 @@
 {
   "port": 8080,
-  "allowedOrigins": "*"
+  "allowedOrigins": "*",
+
+  "jobParams": {
+    "maxDepth": 3,
+    "maxParallelDownloads": 5,
+    "cacheKeepMinutes": 180,
+    "cacheMaxEntries": 30
+  }
 }

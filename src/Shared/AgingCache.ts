@@ -46,6 +46,16 @@ export default class AgingCache<TKey, TValue> {
     return this.evictQueue.slice();
   }
 
+  delete = (id: TKey) => {
+    this.entries.delete(id);
+    for(let i = 0; i < this.evictQueue.length; i++) {
+      if (this.evictQueue[i] === id) {
+        this.evictQueue.splice(i, 1);
+        return;
+      }
+    }
+  }
+
   private evict = () => {
     const nextKey = this.evictQueue.shift();
     if (nextKey) {
