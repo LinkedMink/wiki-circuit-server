@@ -26,7 +26,7 @@ export class Job {
 
     this.work.doWork(this, params);
 
-    console.log(`Started: ${this.status}`);
+    console.log(`Started: ${this.id} @ ${this.startTime}`);
   }
 
   complete = (result: Object) => {
@@ -71,7 +71,7 @@ export class Job {
     this.endTime = Date.now();
     this.runTime = this.endTime - this.startTime;
 
-    console.log(`Finished: ${this.status}`);
+    console.log(`Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`);
   }
 
   private jobStatus: JobStatus = JobStatus.Ready;

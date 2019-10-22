@@ -5,7 +5,7 @@
   "jobParams": {
     "maxDepth": 3,
     "maxParallelDownloads": 5,
-    "cacheKeepMinutes": 180,
+    "cacheKeepMinutes": 360,
     "cacheMaxEntries": 30
   }
 }
