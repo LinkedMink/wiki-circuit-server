@@ -38,6 +38,7 @@ const WIKIPEDIA_ARTICLE_BASE_URL = 'https://en.wikipedia.org/wiki/';
 const WIKIPEDIA_ARTICLE_PREFIX = '/wiki/';
 const WIKIPEDIA_CONTENT_ID = '#mw-content-text';
 const WIKIPEDIA_AUTHORITY_BLOCK_ID = '#Authority_control_files';
+const WIKIPEDIA_REFERENCE_BLOCK_CLASS = '.reflist';
 
 interface LinkTotals {
   links: number;
@@ -173,6 +174,10 @@ export class ArticleJobWork extends JobWork {
       .find(`a[href^='${WIKIPEDIA_ARTICLE_PREFIX}']`)
       .each(function(index, element) {
         if (document(element).parents(WIKIPEDIA_AUTHORITY_BLOCK_ID).length > 0) {
+          return;
+        };
+
+        if (document(element).parents(WIKIPEDIA_REFERENCE_BLOCK_CLASS).length > 0) {
           return;
         };
 
