@@ -3,7 +3,7 @@ interface AgingValue<T> {
   data: T
 }
 
-export default class AgingCache<TKey, TValue> {
+export class AgingCache<TKey, TValue> {
   constructor(
     maxEntries: number | undefined = undefined, 
     maxAge: number = 12000000, // 200 Min

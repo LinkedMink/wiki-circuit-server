@@ -1,14 +1,15 @@
 import { Express } from 'express';
 
-import AgingCache from '../Shared/AgingCache'
+import { AgingCache } from '../Shared/AgingCache'
 import { getMessageObject, ResponseStatus } from '../Shared/Request'
 import { Job, JobWork, JobStatus } from '../Shared/Job'
 import { config } from '../Config'
 
-export default function addJobRoutes(
+export const addJobRoutes = (
   app: Express, 
   path: string,
-  createWork: () => JobWork) {
+  createWork: () => JobWork) => {
+
   const jobCache: AgingCache<string, Job> = new AgingCache(
     config.jobParams.cacheMaxEntries, 
     config.jobParams.cacheKeepMinutes * 60 * 1000);

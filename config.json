@@ -3,7 +3,6 @@
   "allowedOrigins": "*",
 
   "jobParams": {
-    "basePath": "/article",
     "maxDepth": 3,
     "maxParallelDownloads": 5,
     "cacheKeepMinutes": 360,

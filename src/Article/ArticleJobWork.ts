@@ -1,55 +1,17 @@
 import fetch from 'node-fetch';
-import cheerio from 'cheerio';
 
+import { ArticleResult } from './ArticleResult';
 import { config } from '../Config';
+import { findLinksInArticle } from './findLinksInArticle';
 import { JobWork, Job } from '../Shared/Job';
-
-const testWikipediaNamespaceRegEx = new RegExp([
-  'User:', 
-  'Wikipedia:', 
-  'File:', 
-  'MediaWiki:', 
-  'Template:', 
-  'Help:', 
-  'Category:', 
-  'Portal:', 
-  'Book:', 
-  'Draft:', 
-  'TimedText:', 
-  'Module:',
-
-  'User_talk:', 
-  'Wikipedia_talk:', 
-  'File_talk:', 
-  'MediaWiki_talk:', 
-  'Template_talk:', 
-  'Help_talk:', 
-  'Category_talk:', 
-  'Portal_talk:', 
-  'Book_talk:', 
-  'Draft_talk:', 
-  'TimedText_talk:', 
-  'Module_talk:',
-
-  "Special:"
-].join("|"));
+import { mapToObject } from '../Shared/collectionHelpers'
 
 const WIKIPEDIA_ARTICLE_BASE_URL = 'https://en.wikipedia.org/wiki/';
-const WIKIPEDIA_ARTICLE_PREFIX = '/wiki/';
-const WIKIPEDIA_CONTENT_ID = '#mw-content-text';
-const WIKIPEDIA_EXCLUDE_CONTENT_BLOCKS = '#Authority_control_files, .reflist';
 
 interface LinkTotals {
   links: number;
   queued: number;
   downloaded: number;
-}
-
-export interface ArticleData {
-  id: string;
-  depth: number,
-  referenceCount: number,
-  linkedArticles: { [s: string]: number; } | null
 }
 
 export class ArticleJobWork extends JobWork {
@@ -71,21 +33,10 @@ export class ArticleJobWork extends JobWork {
     this.getArticleHtml(this.articleName, 1);
   }
 
-  private totalArray = () => {
-    const totals: Object[] = [];
-    for (const depthTotal of this.totals) {
-      var copy = <any>Object.assign({}, depthTotal[1]);
-      copy.depth = depthTotal[0]
-      totals.push(copy);
-    }
-
-    return totals;
-  }
-
   private getArticleHtml = (articleName: string, depth: number) => {
     let downloadPromise: Promise<void>;
 
-    const articleData: ArticleData = { 
+    const articleData: ArticleResult = { 
       id: articleName, 
       depth: depth, 
       referenceCount: 1, 
@@ -94,10 +45,9 @@ export class ArticleJobWork extends JobWork {
     this.result.set(articleName, articleData);
   
     const textHandler = (text: string) => {
-      const links = this.parseLinksFromHtml(text);
+      const links = findLinksInArticle(text);
       articleData.linkedArticles = links;
 
-      // Iterate through the linked articles
       const nextDepth = depth + 1;
       this.addLinkedArticles(links, nextDepth);
   
@@ -160,33 +110,9 @@ export class ArticleJobWork extends JobWork {
       this.job.progress = {
         completed: total0.downloaded / total0.queued,
         message: '',
-        data: this.totalArray()
+        data: mapToObject(this.totals)
       };
     }
-  }
-  
-  private parseLinksFromHtml = (text: string): { [s: string]: number; } => {
-    const links: { [s: string]: number; } = {};
-
-    const document = cheerio.load(text);
-    document(WIKIPEDIA_CONTENT_ID)
-      .find(`a[href^='${WIKIPEDIA_ARTICLE_PREFIX}']`)
-      .each(function(index, element) {
-        if (document(element).parents(WIKIPEDIA_EXCLUDE_CONTENT_BLOCKS).length > 0) {
-          return;
-        };
-
-        const linkName = element.attribs.href.substring(WIKIPEDIA_ARTICLE_PREFIX.length);
-        if (!testWikipediaNamespaceRegEx.test(linkName)) {
-          if (links[linkName] === undefined) {
-            links[linkName] = 1
-          } else {
-            links[linkName]++;
-          }
-        }
-      });
-
-    return links;
   }
   
   private addLinkedArticles = (links: { [s: string]: number; }, depth: number) => {
@@ -248,7 +174,7 @@ export class ArticleJobWork extends JobWork {
   private job?: Job;
   private articleName: string = '';
   private isFinished: boolean = false;
-  private result: Map<string, ArticleData> = new Map();
+  private result: Map<string, ArticleResult> = new Map();
   private queue: Map<string, number> = new Map();
   private downloading: Set<string> = new Set();
   private activePromises: Set<Promise<void>> = new Set();
