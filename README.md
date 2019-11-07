@@ -87,6 +87,7 @@ Submit a new job with the body containing the article name as the ID of the job.
 ### GET /article/{id}
 Get the status of a job. After a job completes, the result will be included with the status.
 
+#### Response
 ```json
 {
   "status": "success",

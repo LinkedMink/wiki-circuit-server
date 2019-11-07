@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 
 import { config } from './Config';
-import { addJobRoutes } from './Routes/addJobRoutes';
+import { getJobRouter } from './Routes/getJobRouter';
 import { ArticleJobWork } from './Article/ArticleJobWork';
 import { getMessageObject } from './Shared/Request';
 
@@ -19,12 +19,12 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-app.use(morgan('combined'))
+app.use(morgan('dev'))
 
 app.get('/', function(req, res) {
   res.send(getMessageObject());
 });
 
-addJobRoutes(app, JOB_BASE_PATH, () => new ArticleJobWork());
+app.use(JOB_BASE_PATH, getJobRouter(() => new ArticleJobWork()));
 
 const server = app.listen(config.port, function() {});

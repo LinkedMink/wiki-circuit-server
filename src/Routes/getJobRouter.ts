@@ -1,27 +1,25 @@
-import { Express } from 'express';
+import express from 'express';
 
 import { AgingCache } from '../Shared/AgingCache'
 import { getMessageObject, ResponseStatus } from '../Shared/Request'
 import { Job, JobWork, JobStatus } from '../Shared/Job'
 import { config } from '../Config'
 
-export const addJobRoutes = (
-  app: Express, 
-  path: string,
-  createWork: () => JobWork) => {
+export const getJobRouter = (createWork: () => JobWork) => {
+  const router = express.Router();
 
   const jobCache: AgingCache<string, Job> = new AgingCache(
     config.jobParams.cacheMaxEntries, 
     config.jobParams.cacheKeepMinutes * 60 * 1000);
 
-  app.get(path, function(req, res) {
+  router.get('/', function(req, res) {
     const response = getMessageObject();
     response.data = jobCache.keys()
 
     res.send(response);
   });
 
-  app.get(`${path}/:id`, function(req, res) {
+  router.get(`/:id`, function(req, res) {
     const response = getMessageObject();
     
     const id = req.params.id;
@@ -49,7 +47,7 @@ export const addJobRoutes = (
     res.status(404).send(response);
   });
   
-  app.post(path, function(req, res) {
+  router.post('/', function(req, res) {
     const response = getMessageObject();
     
     const id = req.body.id;
@@ -86,4 +84,6 @@ export const addJobRoutes = (
     response.message = `Job started: ${id}`;
     res.send(response);
   });
+
+  return router;
 }
