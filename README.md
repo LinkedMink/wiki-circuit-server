@@ -22,6 +22,12 @@ This project host an API to manage jobs that download Wikipedia article data and
 other. The project includes routes to start a job, get the result/status, and view an index of all jobs in progress. 
 
 ## Scripts
+To run the application, install cross-env globally.
+
+```
+npm install -g cross-env
+```
+
 In the project directory, you can run:
 
 ### `npm start`
@@ -35,6 +41,9 @@ Run the existing built application without rebuilding
 
 ### `npm run watch`
 Continuously watch for changes in the TypeScript files. Rebuild application whenever a change is detected.
+
+### `npm test`
+Run the unit test and generate a coverage report.
 
 ## Routes
 

@@ -59,7 +59,7 @@ describe('Job.ts', () => {
 
   test('fault() should set state to faulted and set error message', async () => {
     // Arrange
-    const testFault = new Error('TEST_FAULT');
+    const testFault = 'TEST_FAULT';
     const testId = 'TEST';
     const mockJobWork = new MockJobWork();
 
@@ -72,8 +72,25 @@ describe('Job.ts', () => {
     // Assert
     expect(jobStatus.endTime).not.toEqual(0);
     expect(jobStatus.status).toEqual(JobStatus.Faulted);
+    expect(jobStatus.progress.message).toEqual(testFault);
+  })
+
+  test('fault() should allow faulting with an error object', async () => {
+    // Arrange
+    const testFault = new Error('TEST_FAULT');
+    const testId = 'TEST';
+    const mockJobWork = new MockJobWork();
+
+    // Act
+    const job = new Job(testId, mockJobWork);
+    job.start({});
+    job.fault(testFault)
+    const jobStatus = job.status;
+
+    // Assert
     expect(jobStatus.progress.message).toEqual(testFault.message);
   })
+
 
   test('progress should set progress object', async () => {
     // Arrange

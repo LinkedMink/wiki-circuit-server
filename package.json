@@ -17,7 +17,7 @@
     "build": "tsc",
     "startApp": "node -r dotenv/config ./build/App.js",
     "watch": "ts-node-dev --respawn --transpileOnly ./app/App.ts",
-    "test": "cross-env NODE_ENV=test jest --forceExit"
+    "test": "cross-env NODE_ENV=test jest"
   },
   "dependencies": {
     "body-parser": "~1.19.0",
