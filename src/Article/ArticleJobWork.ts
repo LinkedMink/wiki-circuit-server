@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 import { ArticleResult } from './ArticleResult';
-import { config } from '../Config';
+import { config } from '../config';
 import { findLinksInArticle } from './findLinksInArticle';
 import { JobWork, Job } from '../Shared/Job';
 import { mapToObject } from '../Shared/collectionHelpers'

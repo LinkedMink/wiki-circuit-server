@@ -1,3 +1,5 @@
+import { logger } from '../logger'
+
 export enum JobStatus {
   Ready = 'ready',
   Running = 'running',
@@ -26,7 +28,7 @@ export class Job {
 
     this.work.doWork(this, params);
 
-    console.log(`Started: ${this.id} @ ${this.startTime}`);
+    logger.info(`Started: ${this.id} @ ${this.startTime}`);
   }
 
   complete = (result: Object) => {
@@ -71,7 +73,7 @@ export class Job {
     this.endTime = Date.now();
     this.runTime = this.endTime - this.startTime;
 
-    console.log(`Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`);
+    logger.info(`Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`);
   }
 
   private jobStatus: JobStatus = JobStatus.Ready;

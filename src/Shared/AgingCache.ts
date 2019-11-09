@@ -7,19 +7,28 @@ export class AgingCache<TKey, TValue> {
   constructor(
     maxEntries: number | undefined = undefined, 
     maxAge: number = 12000000, // 200 Min
-    purgeInterval: number = 30000) {
+    purgeInterval: number = 30000) { // 30 Sec
+
+    if (maxEntries !== undefined && maxEntries < 1) {
+      throw new Error(`maxEntries(${maxEntries}): must be greater than 0`);
+    }
+
+    if (maxAge <= purgeInterval) {
+      throw new Error(`maxAge(${maxAge}): must be greater than purgeInterval(${purgeInterval})`);
+    }
+
+    if (purgeInterval < 10000) {
+      throw new Error(`purgeInterval(${purgeInterval}): must be greater than 10 seconds`);
+    }
+    
     this.maxEntries = maxEntries;
     this.maxAge = maxAge;
     this.purgeInterval = purgeInterval;
 
-    setInterval(this.purge, purgeInterval);
+    setInterval(this.purge, this.purgeInterval);
   }
 
   get = (key: TKey): TValue | undefined => {
-    if (!this.entries.has(key)) {
-      return undefined;
-    }
-
     const entry = this.entries.get(key);
     if (entry) {
       return entry.data;

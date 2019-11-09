@@ -9,7 +9,7 @@ export interface ResponseObject {
   data: Object | null
 }
 
-export function getMessageObject(): ResponseObject {
+export function getResponseObject(): ResponseObject {
   return {
     status: ResponseStatus.Success,
     message: '',
