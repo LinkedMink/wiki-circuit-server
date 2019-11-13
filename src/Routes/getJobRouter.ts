@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import WebSocket from 'ws';
 
 import { AgingCache } from '../Shared/AgingCache'
 import { getResponseObject, ResponseStatus } from '../Shared/Request'
@@ -90,9 +91,44 @@ export const getJobRouter = (createWork: () => JobWork) => {
     res.send(response);
   }
 
+  const webSocketConnectedHandler = (ws: WebSocket, req: Request) => {
+    ws.on('message', function(message) {
+      const response = getResponseObject();
+
+      let data;
+      try {
+        data = JSON.parse(message.toString());
+      } catch(e) {
+        response.status = ResponseStatus.Failed;
+        response.message = 'Message was not valid JSON';
+        ws.send(JSON.stringify(response));
+        return;
+      }
+
+      if (!data.id) {
+        response.status = ResponseStatus.Failed;
+        response.message = 'id: required';
+        ws.send(JSON.stringify(response));
+        return;
+      }
+  
+      const job = jobCache.get(data.id);
+      if (job) {
+        response.data = job.status.progress;
+        ws.send(JSON.stringify(response));
+        return;
+      }
+  
+      response.status = ResponseStatus.Failed;
+      response.message = `No job exist for the specified ID: ${data.id}`;
+      ws.send(JSON.stringify(response));
+    })
+  }
+
   router.get('/', getCachedJobIdsHandler);
-  router.get(`/:id`, getJobByIdHandler);
+  router.get('/:id', getJobByIdHandler);
   router.post('/', postJobByIdHandler);
+  router.ws('/job/progress', webSocketConnectedHandler);
 
   return router;
 }

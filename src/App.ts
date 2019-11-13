@@ -1,4 +1,5 @@
 import express from 'express';
+import expressWs from 'express-ws'
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -11,6 +12,7 @@ import { getResponseObject } from './Shared/Request';
 const JOB_BASE_PATH = '/article'
 
 const app = express();
+expressWs(app);
 
 app.use(bodyParser.json());
 

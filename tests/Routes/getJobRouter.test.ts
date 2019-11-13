@@ -1,3 +1,5 @@
+import express from 'express';
+import expressWs from 'express-ws'
 import { Router } from 'express';
 
 import { getJobRouter } from '../../src/Routes/getJobRouter'; 
@@ -6,6 +8,9 @@ import { ResponseStatus } from '../../src/Shared/Request';
 //import { AgingCache } from '../../src/Shared/AgingCache'
 
 //jest.mock('../../src/Shared/AgingCache');
+
+const app = express();
+expressWs(app);
 
 class MockJobWork extends JobWork {
   doWork(job: Job, params: any): void {}
@@ -20,8 +25,14 @@ describe('getJobRouter.ts', () => {
       status: jest.fn().mockImplementation(() => { return mockResponse; })
     }
 
+    const mockWebSocket: any = {
+      send: jest.fn(),
+      on: jest.fn()
+    }
+
     return {
       request: {
+        ws: mockWebSocket,
         params: { id: '' },
         body: { id: '' }
       },
@@ -151,5 +162,17 @@ describe('getJobRouter.ts', () => {
       message: '',
       data: []
     });
+  })
+
+  test('should handle connection ', async () => {
+    // Arrange
+    const getProgressHandler = getRouteHandler('/job/progress/.websocket', 'get');
+    const mockHttp = getMockRequestResponse();
+
+    // Act
+    getProgressHandler(mockHttp.request, mockHttp.response, jest.fn());
+
+    // Assert
+    expect(mockHttp.request.ws.on).toHaveBeenCalled();
   })
 })
