@@ -6,4 +6,4 @@ export const mapToObject = <TValue>(map: Map<string | number, TValue>): { [key: 
   }
 
   return mapObject;
-}
+};

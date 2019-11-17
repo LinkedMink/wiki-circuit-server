@@ -14,7 +14,7 @@ module.exports = {
   ],
   collectCoverage: true,
   collectCoverageFrom: [
-    "src/**/!(*.spec|*.test|*.enum|App|logger|config).ts",
+    "src/**/!(*.spec|*.test|*.enum|app|logger|config).ts",
   ],
   coverageThreshold: {
     global: {

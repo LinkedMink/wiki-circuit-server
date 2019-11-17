@@ -1,11 +1,17 @@
-interface AgingValue<T> {
+interface IAgingValue<T> {
   time: number;
-  data: T
+  data: T;
 }
 
 export class AgingCache<TKey, TValue> {
+
+  private maxEntries?: number;
+  private maxAge: number;
+  private purgeInterval: number;
+  private entries: Map<TKey, IAgingValue<TValue>> = new Map();
+  private evictQueue: TKey[] = [];
   constructor(
-    maxEntries: number | undefined = undefined, 
+    maxEntries?: number,
     maxAge: number = 12000000, // 200 Min
     purgeInterval: number = 30000) { // 30 Sec
 
@@ -20,7 +26,7 @@ export class AgingCache<TKey, TValue> {
     if (purgeInterval < 10000) {
       throw new Error(`purgeInterval(${purgeInterval}): must be greater than 10 seconds`);
     }
-    
+
     this.maxEntries = maxEntries;
     this.maxAge = maxAge;
     this.purgeInterval = purgeInterval;
@@ -28,16 +34,16 @@ export class AgingCache<TKey, TValue> {
     setInterval(this.purge, this.purgeInterval);
   }
 
-  get = (key: TKey): TValue | undefined => {
+  public get = (key: TKey): TValue | undefined => {
     const entry = this.entries.get(key);
     if (entry) {
       return entry.data;
     }
-    
+
     return undefined;
   }
 
-  set = (key: TKey, value: TValue) => {
+  public set = (key: TKey, value: TValue) => {
     while (this.maxEntries && this.entries.size >= this.maxEntries) {
       this.evict();
     }
@@ -51,13 +57,13 @@ export class AgingCache<TKey, TValue> {
     this.evictQueue.push(key);
   }
 
-  keys = () => {
+  public keys = () => {
     return this.evictQueue.slice();
   }
 
-  delete = (id: TKey) => {
+  public delete = (id: TKey) => {
     this.entries.delete(id);
-    for(let i = 0; i < this.evictQueue.length; i++) {
+    for (let i = 0; i < this.evictQueue.length; i++) {
       if (this.evictQueue[i] === id) {
         this.evictQueue.splice(i, 1);
         return;
@@ -85,10 +91,4 @@ export class AgingCache<TKey, TValue> {
       }
     }
   }
-
-  private maxEntries: number | undefined;
-  private maxAge: number;
-  private purgeInterval: number;
-  private entries: Map<TKey, AgingValue<TValue>> = new Map();
-  private evictQueue: Array<TKey> = [];
 }

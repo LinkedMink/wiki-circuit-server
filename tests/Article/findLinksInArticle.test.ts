@@ -1,19 +1,19 @@
-import fs from 'fs';
+import fs from "fs";
 
-import { findLinksInArticle } from '../../src/Article/findLinksInArticle';
+import { findLinksInArticle } from "../../src/Article/findLinksInArticle";
 
-describe('findLinksInArticle.ts', () => {
-  test('should return no links if not an HTML page', async () => {
+describe("findLinksInArticle.ts", () => {
+  test("should return no links if not an HTML page", async () => {
     // Act
-    const links = findLinksInArticle('');
+    const links = findLinksInArticle("");
 
     // Assert
     expect(Object.keys(links).length).toEqual(0);
-  })
+  });
 
-  test.skip('should return links if is a Wikipedia article', async () => {
+  test.skip("should return links if is a Wikipedia article", async () => {
     // Arrange
-    const articleBuffer = fs.readFileSync('./tests/Article/SampleArticle.html');
+    const articleBuffer = fs.readFileSync("./tests/Article/SampleArticle.html");
     const articleData = articleBuffer.toString();
 
     // Act
@@ -21,5 +21,5 @@ describe('findLinksInArticle.ts', () => {
 
     // Assert
     expect(Object.keys(links).length).toBeGreaterThan(0);
-  })
-})
+  });
+});

@@ -1,15 +1,15 @@
-import express from 'express';
-import expressWs from 'express-ws'
-import bodyParser from 'body-parser';
-import morgan from 'morgan';
-import cors from 'cors';
+import bodyParser from "body-parser";
+import cors from "cors";
+import express from "express";
+import expressWs from "express-ws";
+import morgan from "morgan";
 
-import { config } from './config';
-import { getJobRouter } from './Routes/getJobRouter';
-import { ArticleJobWork } from './Article/ArticleJobWork';
-import { getResponseObject } from './Shared/Request';
+import { ArticleJobWork } from "./Article/articleJobWork";
+import { config } from "./config";
+import { getJobRouter } from "./Routes/getJobRouter";
+import { getResponseObject } from "./Shared/request";
 
-const JOB_BASE_PATH = '/article'
+const JOB_BASE_PATH = "/article";
 
 const app = express();
 expressWs(app);
@@ -18,15 +18,15 @@ app.use(bodyParser.json());
 
 app.use(cors({
   origin: config.allowedOrigins,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
 }));
 
-app.use(morgan('dev'))
+app.use(morgan("dev"));
 
-app.get('/', function(req, res) {
+app.get("/", (req, res) => {
   res.send(getResponseObject());
 });
 
 app.use(JOB_BASE_PATH, getJobRouter(() => new ArticleJobWork()));
 
-export const server = app.listen(config.port, function() {});
+export const server = app.listen(config.port);

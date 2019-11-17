@@ -2,10 +2,10 @@
   "name": "wiki-circuit-server",
   "version": "0.1.0",
   "description": "The server component of the Wiki Circuit project",
-  "homepage": "https://github.com/LinkedMink/wiki-circuit-server",
   "license": "MIT",
   "author": {
-    "name": "Harlan Sang"
+    "name": "Harlan Sang",
+    "email": "harlan@linkedmink.space"
   },
   "repository": {
     "type": "git",
@@ -15,9 +15,12 @@
   "scripts": {
     "start": "npm run build && npm run startApp",
     "build": "tsc",
-    "startApp": "node -r dotenv/config ./build/App.js",
-    "watch": "ts-node-dev --respawn --transpileOnly ./app/App.ts",
-    "test": "cross-env NODE_ENV=test jest"
+    "startApp": "node -r dotenv/config ./build/src/app.js",
+    "watch": "ts-node-dev --respawn --transpileOnly ./src/app.ts",
+    "test": "cross-env NODE_ENV=test jest",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "lintTest": "tslint -c tslint.json 'tests/**/*.ts'",
+    "containerize": "npm run build && docker build -t linkedmink/wiki-circuit-server ."
   },
   "dependencies": {
     "body-parser": "~1.19.0",
@@ -47,6 +50,7 @@
   },
   "optionalDependencies": {
     "bufferutil": "~4.0.1",
+    "tslint": "~5.20.1",
     "utf-8-validate": "~5.0.2"
   }
 }

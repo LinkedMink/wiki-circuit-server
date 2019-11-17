@@ -1,0 +1,14 @@
+.vscode
+coverage
+node_modules
+src
+tests
+.env
+.gitignoore
+combined.log
+jest.config.js
+README.md
+tsconfig.json
+tslint.json
+
+npm-debug.log
