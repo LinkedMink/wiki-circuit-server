@@ -55,8 +55,13 @@ export class Job {
   public fault = (error?: Error | string) => {
     if (typeof error === "string") {
       this.progressState.message = error;
+      logger.error(error);
     } else if (error instanceof Error) {
       this.progressState.message = error.message;
+      logger.error(error.message);
+      if (error.stack) {
+        logger.error(error.stack);
+      }
     }
 
     this.jobStatus = JobStatus.Faulted;

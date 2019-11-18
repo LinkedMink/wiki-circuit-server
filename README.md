@@ -21,6 +21,9 @@ used to build the software.
 This project host an API to manage jobs that download Wikipedia article data and builds a map of which articles link to each
 other. The project includes routes to start a job, get the result/status, and view an index of all jobs in progress. 
 
+### Sample App
+Try it out: [http://wiki-circuit.apps.linkedmink.space/](http://wiki-circuit.apps.linkedmink.space/)
+
 ## Scripts
 To run the application, install cross-env globally.
 
@@ -55,7 +58,6 @@ Run the linter on the tests directory.
 Package the application as a docker container.
 
 ## Deployment - Docker
-
 There is no requirement to run on docker, but the project has been configured to do so if desired. Install 
 the development dependencies for both the server and client.
 

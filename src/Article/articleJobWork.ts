@@ -87,9 +87,9 @@ export class ArticleJobWork extends JobWork {
       }
 
       // If we have more to download dequeue the next article to download
-      while (this.activePromises.size <= config.jobParams.maxParallelDownloads) {
+      while (this.queue.size > 0 && this.activePromises.size <= config.jobParams.maxParallelDownloads) {
         const nextArticle = this.queue[Symbol.iterator]().next();
-        if (nextArticle) {
+        if (nextArticle && nextArticle.value) {
           this.queue.delete(nextArticle.value[0]);
           this.getArticleHtml(nextArticle.value[0], nextArticle.value[1]);
         }
