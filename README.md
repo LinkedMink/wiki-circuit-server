@@ -18,8 +18,8 @@ Note that the code was never written to be production ready. It was written main
 used to build the software.
 
 ## Server Project
-This project host an API to manage jobs that download Wikipedia article data and builds a map of which articles link to each
-other. The project includes routes to start a job, get the result/status, and view an index of all jobs in progress. 
+This project host an API for managing jobs that download Wikipedia article data and builds a map of which articles link to 
+each other. The project includes routes to start a job, get the result/status, and view an index of all jobs in progress. 
 
 ### Sample App
 Try it out: [http://wiki-circuit.apps.linkedmink.space/](http://wiki-circuit.apps.linkedmink.space/)
@@ -27,7 +27,7 @@ Try it out: [http://wiki-circuit.apps.linkedmink.space/](http://wiki-circuit.app
 ## Scripts
 To run the application, install cross-env globally.
 
-```
+```bash
 npm install -g cross-env
 ```
 
@@ -69,8 +69,8 @@ cd ../wiki-circuit-client
 npm install
 ```
 
-Containerize the both the server and client application with. You will have to set the server URL at build
-time for the client app since it's contained in the built bundle.
+Containerize both the server and client application. You will have to set the server URL at build time for 
+the client app since it's contained in the built bundle.
 
 ```bash
 cd ./wiki-circuit-server
@@ -89,7 +89,7 @@ docker run -d \
   --name wiki-circuit-server \
   linkedmink/wiki-circuit-server
 
-docker run \
+docker run -d \
   -p 8080:80 \
   --name wiki-circuit-client \
   linkedmink/wiki-circuit-client
