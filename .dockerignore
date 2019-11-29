@@ -4,7 +4,8 @@ node_modules
 src
 tests
 .env
-.gitignoore
+.gitignore
+deployment.yaml
 combined.log
 jest.config.js
 README.md

@@ -5,7 +5,7 @@ import expressWs from "express-ws";
 import { getJobRouter } from "../../src/Routes/getJobRouter";
 import { Job } from "../../src/Shared/job";
 import { JobWork } from "../../src/Shared/jobInterfaces";
-import { ResponseStatus } from "../../src/Shared/request";
+import { ResponseStatus } from "../../src/Shared/response";
 // import { AgingCache } from '../../src/Shared/AgingCache'
 
 // jest.mock('../../src/Shared/AgingCache');

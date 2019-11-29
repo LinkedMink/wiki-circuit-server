@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-import { config } from "../config";
+import { config, ConfigKey } from "../config";
 import { mapToObject } from "../Shared/collectionHelpers";
 import { Job } from "../Shared/job";
 import { JobWork } from "../Shared/jobInterfaces";
@@ -8,6 +8,8 @@ import { IArticleResult } from "./articleResult";
 import { findLinksInArticle } from "./findLinksInArticle";
 
 const WIKIPEDIA_ARTICLE_BASE_URL = "https://en.wikipedia.org/wiki/";
+const maxDepth = config.getNumber(ConfigKey.JobMaxDepth);
+const maxParallelDownloads = config.getNumber(ConfigKey.JobMaxParallelDownloads);
 
 interface ILinkTotals {
   links: number;
@@ -31,7 +33,7 @@ export class ArticleJobWork extends JobWork {
       [0, { links: 1, queued: 1, downloaded: 0 }],
       [1, { links: 1, queued: 1, downloaded: 0 }],
     ]);
-    for (let i = 2; i <= config.jobParams.maxDepth; i++) {
+    for (let i = 2; i <= maxDepth; i++) {
       totals.set(i, { links: 0, queued: 0, downloaded: 0 });
     }
     this.totals = totals;
@@ -87,7 +89,7 @@ export class ArticleJobWork extends JobWork {
       }
 
       // If we have more to download dequeue the next article to download
-      while (this.queue.size > 0 && this.activePromises.size <= config.jobParams.maxParallelDownloads) {
+      while (this.queue.size > 0 && this.activePromises.size <= maxParallelDownloads) {
         const nextArticle = this.queue[Symbol.iterator]().next();
         if (nextArticle && nextArticle.value) {
           this.queue.delete(nextArticle.value[0]);
@@ -131,7 +133,7 @@ export class ArticleJobWork extends JobWork {
     const totalDepth = job.totals.get(depth);
 
     for (const [link, count] of Object.entries(links)) {
-      if (depth <= config.jobParams.maxDepth && !job.downloading.has(link)) {
+      if (depth <= maxDepth && !job.downloading.has(link)) {
         job.downloading.add(link);
 
         if (total0 && totalDepth) {

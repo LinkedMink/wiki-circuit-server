@@ -1,18 +1,18 @@
 import express, { Request, Response } from "express";
 import WebSocket from "ws";
 
-import { config } from "../config";
+import { config, ConfigKey } from "../config";
 import { AgingCache } from "../Shared/agingCache";
 import { Job } from "../Shared/job";
 import { JobStatus, JobWork } from "../Shared/jobInterfaces";
-import { getResponseObject, ResponseStatus } from "../Shared/request";
+import { getResponseObject, ResponseStatus } from "../Shared/response";
 
 export const getJobRouter = (createWork: () => JobWork) => {
   const router = express.Router();
 
   const jobCache: AgingCache<string, Job> = new AgingCache(
-    config.jobParams.cacheMaxEntries,
-    config.jobParams.cacheKeepMinutes * 60 * 1000);
+    config.getNumber(ConfigKey.JobCacheMaxEntries),
+    config.getNumber(ConfigKey.JobCacheKeepMinutes) * 60 * 1000);
 
   const getCachedJobIdsHandler = (req: Request, res: Response) => {
     const response = getResponseObject();

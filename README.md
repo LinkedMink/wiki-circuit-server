@@ -57,7 +57,7 @@ Run the linter on the tests directory.
 ### `npm run containerize`
 Package the application as a docker container.
 
-## Deployment - Docker
+## Deployment
 There is no requirement to run on docker, but the project has been configured to do so if desired. Install 
 the development dependencies for both the server and client.
 
@@ -94,6 +94,18 @@ docker run -d \
   --name wiki-circuit-client \
   linkedmink/wiki-circuit-client
 ```
+
+The project contains a sample deployment.yaml file for deploying to a Kubernetes cluster. Edit the 
+file as necessary. Then apply the changes to your cluster.
+
+```sh
+docker push linkedmink/wiki-circuit-server
+docker push linkedmink/wiki-circuit-client
+kubectl apply -f ./deployment.yaml
+```
+
+IMPORTANT: wiki-circuit-server is not designed to be load balanced since it relies on an internal
+memory cache. Only a single running instance is supported.
 
 ## Routes
 
