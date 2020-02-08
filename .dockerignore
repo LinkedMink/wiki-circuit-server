@@ -5,6 +5,7 @@ src
 tests
 .env
 .gitignore
+deploy.sh
 deployment.yaml
 combined.log
 jest.config.js
