@@ -6,7 +6,7 @@ class MockJobWork extends JobWork {
 }
 
 describe("Job.ts", () => {
-  test("should return job object in ready state", async () => {
+  test("should return job object in ready state", () => {
     // Arrange
     const testId = "TEST";
     const mockJobWork = new MockJobWork();
@@ -20,7 +20,7 @@ describe("Job.ts", () => {
     expect(jobStatus.status).toEqual(JobStatus.Ready);
   });
 
-  test("start() should set state to running and mark start time", async () => {
+  test("start() should set state to running and mark start time", () => {
     // Arrange
     const testId = "TEST";
     const mockJobWork = new MockJobWork();
@@ -39,7 +39,7 @@ describe("Job.ts", () => {
     expect(jobStatus.result).toBeNull();
   });
 
-  test("complete() should set state to complete, end times, and result", async () => {
+  test("complete() should set state to complete, end times, and result", () => {
     // Arrange
     const testResult = { TEST: "TEST_RESULT" };
     const testId = "TEST";
@@ -58,7 +58,7 @@ describe("Job.ts", () => {
     expect(job.result).toEqual(testResult);
   });
 
-  test("fault() should set state to faulted and set error message", async () => {
+  test("fault() should set state to faulted and set error message", () => {
     // Arrange
     const testFault = "TEST_FAULT";
     const testId = "TEST";
@@ -76,7 +76,7 @@ describe("Job.ts", () => {
     expect(jobStatus.progress.message).toEqual(testFault);
   });
 
-  test("fault() should allow faulting with an error object", async () => {
+  test("fault() should allow faulting with an error object", () => {
     // Arrange
     const testFault = new Error("TEST_FAULT");
     const testId = "TEST";
@@ -92,7 +92,7 @@ describe("Job.ts", () => {
     expect(jobStatus.progress.message).toEqual(testFault.message);
   });
 
-  test("progress should set progress object", async () => {
+  test("progress should set progress object", () => {
     // Arrange
     const testProgress: IProgress = {
       completed: 0.5,

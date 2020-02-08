@@ -14,7 +14,7 @@ const app = express();
 expressWs(app);
 
 class MockJobWork extends JobWork {
-  // tslint:disable-next-line: no-empty
+  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
   public doWork(job: Job, params: any): void {}
 }
 
@@ -59,7 +59,7 @@ describe("getJobRouter.ts", () => {
     router = null;
   });
 
-  test("should send 400 on GET /:id when empty ID sent", async () => {
+  test("should send 400 on GET /:id when empty ID sent", () => {
     // Arrange
     const getIdHandler = getRouteHandler("/:id", "get");
     const mockHttp = getMockRequestResponse();
@@ -71,7 +71,7 @@ describe("getJobRouter.ts", () => {
     expect(mockHttp.response.status).toHaveBeenCalledWith(400);
   });
 
-  test("should send 404 on GET /:id when cache missing entry", async () => {
+  test("should send 404 on GET /:id when cache missing entry", () => {
     // Arrange
     const getIdHandler = getRouteHandler("/:id", "get");
     const mockHttp = getMockRequestResponse();
@@ -84,7 +84,7 @@ describe("getJobRouter.ts", () => {
     expect(mockHttp.response.status).toHaveBeenCalledWith(404);
   });
 
-  test.skip("should send job object on GET /:id when cache entry exist", async () => {
+  test.skip("should send job object on GET /:id when cache entry exist", () => {
     // Arrange
     const getIdHandler = getRouteHandler("/:id", "get");
     const mockHttp = getMockRequestResponse();
@@ -97,7 +97,7 @@ describe("getJobRouter.ts", () => {
     expect(mockHttp.response.status).toHaveBeenCalledWith(200);
   });
 
-  test("should send 400 on POST / when empty ID sent", async () => {
+  test("should send 400 on POST / when empty ID sent", () => {
     // Arrange
     const getAllHandler = getRouteHandler("/", "post");
     const mockHttp = getMockRequestResponse();
@@ -109,7 +109,7 @@ describe("getJobRouter.ts", () => {
     expect(mockHttp.response.status).toHaveBeenCalledWith(400);
   });
 
-  test.skip("should send 400 on POST / when job is complete", async () => {
+  test.skip("should send 400 on POST / when job is complete", () => {
     // Arrange
     const getAllHandler = getRouteHandler("/", "post");
     const mockHttp = getMockRequestResponse();
@@ -121,7 +121,7 @@ describe("getJobRouter.ts", () => {
     expect(mockHttp.response.status).toHaveBeenCalledWith(400);
   });
 
-  test.skip("should send 400 on POST / when job already running", async () => {
+  test.skip("should send 400 on POST / when job already running", () => {
     // Arrange
     const getAllHandler = getRouteHandler("/", "post");
     const mockHttp = getMockRequestResponse();
@@ -133,7 +133,7 @@ describe("getJobRouter.ts", () => {
     expect(mockHttp.response.status).toHaveBeenCalledWith(400);
   });
 
-  test("should send success on POST / when ID valid", async () => {
+  test("should send success on POST / when ID valid", () => {
     // Arrange
     const getAllHandler = getRouteHandler("/", "post");
     const mockHttp = getMockRequestResponse();
@@ -150,7 +150,7 @@ describe("getJobRouter.ts", () => {
     });
   });
 
-  test("should send list of jobs on execute GET /", async () => {
+  test("should send list of jobs on execute GET /", () => {
     // Arrange
     const postIdHandler = getRouteHandler("/", "get");
     const mockHttp = getMockRequestResponse();
@@ -166,7 +166,7 @@ describe("getJobRouter.ts", () => {
     });
   });
 
-  test("should handle connection ", async () => {
+  test("should handle connection ", () => {
     // Arrange
     const getProgressHandler = getRouteHandler("/job/progress/.websocket", "get");
     const mockHttp = getMockRequestResponse();

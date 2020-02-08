@@ -13,7 +13,7 @@ fi
 
 npm run build
 
-if [ "$1" == "push" ]; then
+if [ "$1" == "deploy" ]; then
   kubectl set image \
     "deployment/${IMAGE_NAME}" \
     $IMAGE_NAME="${DOCKER_REGISTRY}${DOCKER_SCOPE}${IMAGE_NAME}"
@@ -24,7 +24,7 @@ docker buildx build \
   -t "${DOCKER_REGISTRY}${DOCKER_SCOPE}${IMAGE_NAME}:latest" \
   --push .
 
-if [ "$1" == "push" ]; then
+if [ "$1" == "deploy" ]; then
   sleep 1
 
   kubectl set image \

@@ -2,7 +2,7 @@ import { CORS_ERROR } from "./cors";
 import { logger } from "./logger";
 import { getResponseObject, ResponseStatus } from "./Shared/response";
 
-export const errorMiddleware = (error: any, req: any, res: any, next: any) => {
+export const errorMiddleware = (error: any, req: any, res: any) => {
   if (error && error.stack) {
     if (error.stack) {
       logger.error(error.stack);

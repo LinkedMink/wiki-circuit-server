@@ -1,5 +1,4 @@
 import bodyParser from "body-parser";
-import cors from "cors";
 import express from "express";
 import expressWs from "express-ws";
 import morgan from "morgan";

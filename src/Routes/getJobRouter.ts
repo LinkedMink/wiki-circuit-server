@@ -92,7 +92,7 @@ export const getJobRouter = (createWork: () => JobWork) => {
     res.send(response);
   };
 
-  const webSocketConnectedHandler = (ws: WebSocket, req: Request) => {
+  const webSocketConnectedHandler = (ws: WebSocket) => {
     ws.on("message", (message) => {
       const response = getResponseObject();
 

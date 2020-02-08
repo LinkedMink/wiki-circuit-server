@@ -23,9 +23,9 @@ export class Job {
   }
 
   private jobStatus: JobStatus = JobStatus.Ready;
-  private startTime: number = 0;
-  private endTime: number = 0;
-  private runTime: number = 0;
+  private startTime = 0;
+  private endTime = 0;
+  private runTime = 0;
   private progressState: IProgress = {
     completed: 0,
     message: "",

@@ -12,8 +12,8 @@ export class AgingCache<TKey, TValue> {
   private evictQueue: TKey[] = [];
   constructor(
     maxEntries?: number,
-    maxAge: number = 12000000, // 200 Min
-    purgeInterval: number = 30000) { // 30 Sec
+    maxAge = 12000000, // 200 Min
+    purgeInterval = 30000) { // 30 Sec
 
     if (maxEntries !== undefined && maxEntries < 1) {
       throw new Error(`maxEntries(${maxEntries}): must be greater than 0`);

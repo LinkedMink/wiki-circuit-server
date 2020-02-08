@@ -12,7 +12,7 @@ const corsOptions = {
 
 if (originsData.length) {
   corsOptions.origin = (origin: string, callback: any) => {
-    if (originsData.indexOf(origin) !== -1) {
+    if (originsData.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error(CORS_ERROR));

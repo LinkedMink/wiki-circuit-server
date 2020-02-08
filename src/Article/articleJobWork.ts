@@ -20,8 +20,8 @@ interface ILinkTotals {
 export class ArticleJobWork extends JobWork {
 
   private job?: Job;
-  private articleName: string = "";
-  private isFinished: boolean = false;
+  private articleName = "";
+  private isFinished = false;
   private result: Map<string, IArticleResult> = new Map();
   private queue: Map<string, number> = new Map();
   private downloading: Set<string> = new Set();
@@ -46,6 +46,7 @@ export class ArticleJobWork extends JobWork {
   }
 
   private getArticleHtml = (articleName: string, depth: number) => {
+    // eslint-disable-next-line prefer-const
     let downloadPromise: Promise<void>;
 
     const articleData: IArticleResult = {
@@ -127,28 +128,27 @@ export class ArticleJobWork extends JobWork {
     }
   }
 
-  private addLinkedArticles = (links: { [s: string]: number; }, depth: number) => {
-    const job = this;
-    const total0 = job.totals.get(0);
-    const totalDepth = job.totals.get(depth);
+  private addLinkedArticles = (links: { [s: string]: number }, depth: number) => {
+    const total0 = this.totals.get(0);
+    const totalDepth = this.totals.get(depth);
 
     for (const [link, count] of Object.entries(links)) {
-      if (depth <= maxDepth && !job.downloading.has(link)) {
-        job.downloading.add(link);
+      if (depth <= maxDepth && !this.downloading.has(link)) {
+        this.downloading.add(link);
 
         if (total0 && totalDepth) {
           total0.links += count;
           totalDepth.links += count;
         }
 
-        job.queue.set(link, depth);
+        this.queue.set(link, depth);
         if (total0 && totalDepth) {
           total0.queued++;
           totalDepth.queued++;
         }
       }
 
-      const resultLink = job.result.get(link);
+      const resultLink = this.result.get(link);
       if (resultLink) {
         resultLink.referenceCount++;
       }

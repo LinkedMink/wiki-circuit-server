@@ -5,7 +5,7 @@ describe("AgingCache.ts", () => {
     jest.resetAllMocks();
   });
 
-  test("should check parameters are valid on create", async () => {
+  test("should check parameters are valid on create", () => {
     // Arrange
     const invalidMaxEntries = -1;
     const validMaxEntries = 10;
@@ -15,19 +15,19 @@ describe("AgingCache.ts", () => {
 
     // Act -> Assert
     expect(() => {
-      const cache = new AgingCache(invalidMaxEntries);
+      new AgingCache(invalidMaxEntries);
     }).toThrow();
 
     expect(() => {
-      const cache = new AgingCache(validMaxEntries, invalidMaxAge);
+      new AgingCache(validMaxEntries, invalidMaxAge);
     }).toThrow();
 
     expect(() => {
-      const cache = new AgingCache(validMaxEntries, validMaxAge, invalidPurgeInterval);
+      new AgingCache(validMaxEntries, validMaxAge, invalidPurgeInterval);
     }).toThrow();
   });
 
-  test("should be able to set and retrieve object from cache", async () => {
+  test("should be able to set and retrieve object from cache", () => {
     // Arrange
     const testKey = "TEST_KEY";
     const testValue = "TEST_VALUE";
@@ -41,7 +41,7 @@ describe("AgingCache.ts", () => {
     expect(retrieved).toBe(testValue);
   });
 
-  test("should be able to delete object from cache", async () => {
+  test("should be able to delete object from cache", () => {
     // Arrange
     const testKey = "TEST_KEY";
     const testValue = "TEST_VALUE";
@@ -56,7 +56,7 @@ describe("AgingCache.ts", () => {
     expect(retrieved).toBeUndefined();
   });
 
-  test("should evict entries if max exceeded", async () => {
+  test("should evict entries if max exceeded", () => {
     // Arrange
     const testKey1 = "TEST_KEY1";
     const testKey2 = "TEST_KEY2";
@@ -74,7 +74,7 @@ describe("AgingCache.ts", () => {
     expect(retrieved2).toBeDefined();
   });
 
-  test("should evict entries if max age exceeded", async () => {
+  test("should evict entries if max age exceeded", () => {
     // Arrange
     jest.useFakeTimers();
     const testStartTime = 10000000;
@@ -99,7 +99,7 @@ describe("AgingCache.ts", () => {
     expect(retrieved).toBeUndefined();
   });
 
-  test("should evict entries at a regular interval", async () => {
+  test("should evict entries at a regular interval", () => {
     // Arrange
     jest.useFakeTimers();
     const testStartTime = 10000000;
@@ -142,7 +142,7 @@ describe("AgingCache.ts", () => {
     expect(retrieved2).toBeUndefined();
   });
 
-  test("should list snapshot of keys", async () => {
+  test("should list snapshot of keys", () => {
     // Arrange
     const testKey1 = "TEST_KEY1";
     const testKey2 = "TEST_KEY2";
@@ -165,7 +165,7 @@ describe("AgingCache.ts", () => {
     expect(keys2.includes(testKey2)).toEqual(true);
   });
 
-  test("should allow replace with set()", async () => {
+  test("should allow replace with set()", () => {
     // Arrange
     const testKey = "TEST_KEY";
     const testValue1 = "TEST_VALUE1";

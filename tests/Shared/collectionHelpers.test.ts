@@ -1,9 +1,9 @@
 import { mapToObject } from "../../src/Shared/collectionHelpers";
 
 describe("collectionHelpers.ts", () => {
-  test("mapToObject should return object with map keys as object keys", async () => {
+  test("mapToObject should return object with map keys as object keys", () => {
     // Arrange
-    const testKey1: string = "TEST_KEY1";
+    const testKey1 = "TEST_KEY1";
     const testKey2 = "TEST_KEY2";
     const testKey3 = "TEST_KEY3";
     const testValue = "TEST_VALUE";

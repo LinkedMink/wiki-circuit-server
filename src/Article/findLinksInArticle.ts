@@ -36,8 +36,8 @@ const WIKIPEDIA_ARTICLE_PREFIX = "/wiki/";
 const WIKIPEDIA_CONTENT_ID = "#mw-content-text";
 const WIKIPEDIA_EXCLUDE_CONTENT_BLOCKS = "#Authority_control_files, .reflist";
 
-export const findLinksInArticle = (text: string): { [s: string]: number; } => {
-  const links: { [s: string]: number; } = {};
+export const findLinksInArticle = (text: string): { [s: string]: number } => {
+  const links: { [s: string]: number } = {};
 
   const document = cheerio.load(text);
   document(WIKIPEDIA_CONTENT_ID)
