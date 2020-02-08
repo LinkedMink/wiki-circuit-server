@@ -4,13 +4,12 @@ node_modules
 src
 tests
 .env
+.eslintrc.js
 .gitignore
-deploy.sh
+build.sh
+combined.log
 deployment.yaml
 combined.log
 jest.config.js
 README.md
 tsconfig.json
-tslint.json
-
-npm-debug.log
