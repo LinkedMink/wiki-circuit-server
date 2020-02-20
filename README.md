@@ -22,7 +22,7 @@ This project host an API for managing jobs that download Wikipedia article data 
 each other. The project includes routes to start a job, get the result/status, and view an index of all jobs in progress. 
 
 ### Sample App
-Try it out: [http://wiki-circuit.apps.linkedmink.space/](http://wiki-circuit.apps.linkedmink.space/)
+Try it out: [http://wiki-circuit.linkedmink.space/](http://wiki-circuit.linkedmink.space/)
 
 ## Scripts
 To run the application, install cross-env globally.

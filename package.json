@@ -1,6 +1,6 @@
 {
   "name": "wiki-circuit-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The server component of the Wiki Circuit project",
   "license": "MIT",
   "author": {
@@ -42,8 +42,8 @@
     "@types/morgan": "~1.7.37",
     "@types/node-fetch": "~2.5.2",
     "@types/ws": "~6.0.3",
-    "@typescript-eslint/eslint-plugin": "^2.19.0",
-    "@typescript-eslint/parser": "^2.19.0",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
     "cross-env": "~6.0.3",
     "eslint": "^6.8.0",
     "jest": "~24.9.0",
