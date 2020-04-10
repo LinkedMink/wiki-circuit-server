@@ -1,5 +1,5 @@
-import { Job } from "../../src/Shared/job";
-import { IProgress, JobStatus, JobWork } from "../../src/Shared/jobInterfaces";
+import { Job } from "../../src/Shared/Job";
+import { IProgress, JobStatus, JobWork } from "../../src/Shared/JobInterfaces";
 
 class MockJobWork extends JobWork {
   public doWork = jest.fn();

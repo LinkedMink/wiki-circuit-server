@@ -1,13 +1,13 @@
 import express, { Request, Response } from "express";
+import { IAgingCache } from "multilevel-aging-cache";
 import WebSocket from "ws";
 
-import { Job } from "../Shared/job";
-import { JobStatus, JobWork, IJob } from "../Shared/jobInterfaces";
-import { getResponseObject, ResponseStatus } from "../Shared/response";
-import { AgingCache } from "../Shared/agingCache";
-import { logger } from "../logger";
+import { Job } from "../Shared/Job";
+import { JobStatus, JobWork, IJob } from "../Shared/JobInterfaces";
+import { getResponseObject, ResponseStatus } from "../Shared/Response";
+import { logger } from "../Logger";
 
-export const getJobRouter = (jobCache: AgingCache<string, IJob>, createWork: () => JobWork) => {
+export const getJobRouter = (jobCache: IAgingCache<string, IJob>, createWork: () => JobWork) => {
   const router = express.Router();
 
   const executeOnPromiseOrEntry = <TEntry>(

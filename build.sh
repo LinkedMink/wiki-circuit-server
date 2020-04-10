@@ -15,8 +15,6 @@ if [ -z "$KUBERNETES_NAMESPACE" ]; then
   KUBERNETES_NAMESPACE="wiki-circuit" 
 fi
 
-npm run build
-
 if [ "$1" == "deploy" ]; then
   kubectl set image \
     "deployment/${IMAGE_NAME}" \

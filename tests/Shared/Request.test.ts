@@ -1,4 +1,4 @@
-import { getResponseObject, ResponseStatus } from "../../src/Shared/response";
+import { getResponseObject, ResponseStatus } from "../../src/Shared/Response";
 
 describe("Request.ts", () => {
   test("getMessageObject should return standard empty response interface", () => {

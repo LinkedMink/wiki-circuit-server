@@ -1,5 +1,6 @@
-import { ISerializer } from "./serializer";
-import { IJob, JobData } from "./jobInterfaces";
+import { ISerializer } from "multilevel-aging-cache";
+
+import { IJob, JobData } from "./JobInterfaces";
 
 export class JobSerializer implements ISerializer<IJob> {
   serialize(data: IJob): string {

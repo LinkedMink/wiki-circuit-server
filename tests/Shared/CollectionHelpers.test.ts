@@ -1,4 +1,4 @@
-import { mapToObject } from "../../src/Shared/collectionHelpers";
+import { mapToObject } from "../../src/Shared/CollectionHelpers";
 
 describe("collectionHelpers.ts", () => {
   test("mapToObject should return object with map keys as object keys", () => {

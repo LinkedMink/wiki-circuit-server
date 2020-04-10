@@ -1,14 +1,11 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-
 import express from "express";
 import { Router } from "express";
 import expressWs from "express-ws";
+import { IAgingCache } from "multilevel-aging-cache";
 
-import { getJobRouter } from "../../src/Routes/getJobRouter";
-import { Job } from "../../src/Shared/job";
-import { JobWork } from "../../src/Shared/jobInterfaces";
-import { ResponseStatus } from "../../src/Shared/response";
-import { AgingCache } from "../../src/Shared/agingCache";
+import { getJobRouter } from "../../src/Routes/GetJobRouter";
+import { JobWork, IJob } from "../../src/Shared/JobInterfaces";
+import { ResponseStatus } from "../../src/Shared/Response";
 
 // jest.mock('../../src/Shared/AgingCache');
 
@@ -16,27 +13,15 @@ const app = express();
 expressWs(app);
 
 class MockJobWork extends JobWork {
-  public doWork(job: Job, params: any): void {}
+  doWork = jest.fn();
 }
 
-class MockAgingCache extends AgingCache<string, Job> {
-  public get(key: string): Job | null {
-    return null;
-  }
-
-  public set(key: string, value: Job) {
-    return true;
-  }
-
-  public delete(key: string) {
-    return true;
-  }
-
-  public keys() {
-    return [];
-  }
-
-  public purge() {}
+class MockAgingCache implements IAgingCache<string, IJob> {
+  get = jest.fn().mockResolvedValue(null);
+  set = jest.fn().mockResolvedValue(true);
+  delete = jest.fn().mockResolvedValue(true);
+  keys = jest.fn().mockResolvedValue([]);
+  purge = jest.fn().mockResolvedValue(undefined);
 }
 
 describe("getJobRouter.ts", () => {

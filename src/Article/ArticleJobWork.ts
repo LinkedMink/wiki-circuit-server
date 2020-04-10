@@ -1,11 +1,11 @@
 import fetch from "node-fetch";
 
-import { config, ConfigKey } from "../config";
-import { mapToObject } from "../Shared/collectionHelpers";
-import { Job } from "../Shared/job";
-import { JobWork } from "../Shared/jobInterfaces";
-import { IArticleResult } from "./articleResult";
-import { findLinksInArticle } from "./findLinksInArticle";
+import { config, ConfigKey } from "../Config";
+import { mapToObject } from "../Shared/CollectionHelpers";
+import { Job } from "../Shared/Job";
+import { JobWork } from "../Shared/JobInterfaces";
+import { IArticleResult } from "./ArticleResult";
+import { findLinksInArticle } from "./FindLinksInArticle";
 
 const WIKIPEDIA_ARTICLE_BASE_URL = "https://en.wikipedia.org/wiki/";
 const maxDepth = config.getNumber(ConfigKey.JobMaxDepth);

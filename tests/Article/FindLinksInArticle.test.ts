@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import { findLinksInArticle } from "../../src/Article/findLinksInArticle";
+import { findLinksInArticle } from "../../src/Article/FindLinksInArticle";
 
 describe("findLinksInArticle.ts", () => {
   test("should return no links if not an HTML page", () => {

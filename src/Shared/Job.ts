@@ -1,5 +1,5 @@
-import { logger } from "../logger";
-import { IProgress, JobStatus, JobWork, IJob } from "./jobInterfaces";
+import { logger } from "../Logger";
+import { IProgress, JobStatus, JobWork, IJob } from "./JobInterfaces";
 
 export class Job implements IJob {
   progress(value: IProgress) {

@@ -1,4 +1,4 @@
-import { ArticleJobWork } from "../../src/Article/articleJobWork";
+import { ArticleJobWork } from "../../src/Article/ArticleJobWork";
 
 describe("ArticleJobWork.ts", () => {
   test("should return work object", () => {

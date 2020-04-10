@@ -1,3 +1,0 @@
-interface IDisposable {
-  dispose(): void;
-}

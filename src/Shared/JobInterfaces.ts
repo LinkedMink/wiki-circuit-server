@@ -34,6 +34,7 @@ export interface IJob {
 export class JobData implements IJob {
   constructor(private statusData: IJobStatus) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progress(value: IProgress): void {
     throw new Error("Method not implemented.");
   }
@@ -46,14 +47,17 @@ export class JobData implements IJob {
     return this.statusData;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   start(params: any): void {
     throw new Error("Method not implemented.");
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   complete(result: object): void {
     throw new Error("Method not implemented.");
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fault(error?: string | Error | undefined): void {
     throw new Error("Method not implemented.");
   }
