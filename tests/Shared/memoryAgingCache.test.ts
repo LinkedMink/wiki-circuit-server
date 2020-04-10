@@ -1,6 +1,6 @@
-import { AgingCache } from "../../src/Shared/agingCache";
+import { MemoryAgingCache } from "../../src/Shared/memoryAgingCache";
 
-describe("AgingCache.ts", () => {
+describe("MemoryAgingCache.ts", () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
@@ -9,21 +9,21 @@ describe("AgingCache.ts", () => {
     // Arrange
     const invalidMaxEntries = -1;
     const validMaxEntries = 10;
-    const invalidMaxAge = 1000;
-    const validMaxAge = 11000;
-    const invalidPurgeInterval = 1000;
+    const invalidMaxAge = 0.1;
+    const validMaxAge = 1;
+    const invalidPurgeInterval = 1;
 
     // Act -> Assert
     expect(() => {
-      new AgingCache(invalidMaxEntries);
+      new MemoryAgingCache(invalidMaxEntries);
     }).toThrow();
 
     expect(() => {
-      new AgingCache(validMaxEntries, invalidMaxAge);
+      new MemoryAgingCache(validMaxEntries, invalidMaxAge);
     }).toThrow();
 
     expect(() => {
-      new AgingCache(validMaxEntries, validMaxAge, invalidPurgeInterval);
+      new MemoryAgingCache(validMaxEntries, validMaxAge, invalidPurgeInterval);
     }).toThrow();
   });
 
@@ -31,7 +31,7 @@ describe("AgingCache.ts", () => {
     // Arrange
     const testKey = "TEST_KEY";
     const testValue = "TEST_VALUE";
-    const cache: AgingCache<string, string> = new AgingCache();
+    const cache: MemoryAgingCache<string, string> = new MemoryAgingCache();
 
     // Act
     cache.set(testKey, testValue);
@@ -45,7 +45,7 @@ describe("AgingCache.ts", () => {
     // Arrange
     const testKey = "TEST_KEY";
     const testValue = "TEST_VALUE";
-    const cache: AgingCache<string, string> = new AgingCache();
+    const cache: MemoryAgingCache<string, string> = new MemoryAgingCache();
     cache.set(testKey, testValue);
 
     // Act
@@ -53,7 +53,7 @@ describe("AgingCache.ts", () => {
     const retrieved = cache.get(testKey);
 
     // Assert
-    expect(retrieved).toBeUndefined();
+    expect(retrieved).toBeNull();
   });
 
   test("should evict entries if max exceeded", () => {
@@ -61,7 +61,7 @@ describe("AgingCache.ts", () => {
     const testKey1 = "TEST_KEY1";
     const testKey2 = "TEST_KEY2";
     const testValue = "TEST_VALUE";
-    const cache: AgingCache<string, string> = new AgingCache(1);
+    const cache: MemoryAgingCache<string, string> = new MemoryAgingCache(1);
 
     // Act
     cache.set(testKey1, testValue);
@@ -70,7 +70,7 @@ describe("AgingCache.ts", () => {
     const retrieved2 = cache.get(testKey2);
 
     // Assert
-    expect(retrieved1).toBeUndefined();
+    expect(retrieved1).toBeNull();
     expect(retrieved2).toBeDefined();
   });
 
@@ -78,10 +78,11 @@ describe("AgingCache.ts", () => {
     // Arrange
     jest.useFakeTimers();
     const testStartTime = 10000000;
-    const testPurgeInterval = 10000;
+    const testPurgeInterval = 60;
+    const testPurgeIntervalMilliseconds = testPurgeInterval * 1000;
     const testKey = "TEST_KEY";
     const testValue = "TEST_VALUE";
-    const cache: AgingCache<string, string> = new AgingCache(1, testPurgeInterval + 1, testPurgeInterval);
+    const cache: MemoryAgingCache<string, string> = new MemoryAgingCache(1, 1.000001, testPurgeInterval);
     jest
       .spyOn(global.Date, "now")
       .mockImplementationOnce(() => testStartTime);
@@ -90,24 +91,25 @@ describe("AgingCache.ts", () => {
     cache.set(testKey, testValue);
     jest
       .spyOn(global.Date, "now")
-      .mockImplementationOnce(() => testStartTime + testPurgeInterval + 2);
+      .mockImplementationOnce(() => testStartTime + testPurgeIntervalMilliseconds + 2);
 
-    jest.advanceTimersByTime(testPurgeInterval);
+    jest.advanceTimersByTime(testPurgeIntervalMilliseconds);
     const retrieved = cache.get(testKey);
 
     // Assert
-    expect(retrieved).toBeUndefined();
+    expect(retrieved).toBeNull();
   });
 
   test("should evict entries at a regular interval", () => {
     // Arrange
     jest.useFakeTimers();
     const testStartTime = 10000000;
-    const testPurgeInterval = 10000;
+    const testPurgeInterval = 60;
+    const testPurgeIntervalMilliseconds = testPurgeInterval * 1000;
     const testKey1 = "TEST_KEY1";
     const testKey2 = "TEST_KEY2";
     const testValue = "TEST_VALUE";
-    const cache: AgingCache<string, string> = new AgingCache(10, testPurgeInterval + 1, testPurgeInterval);
+    const cache: MemoryAgingCache<string, string> = new MemoryAgingCache(10, 1.000001, testPurgeInterval);
 
     // Act
     jest
@@ -117,29 +119,29 @@ describe("AgingCache.ts", () => {
 
     jest
       .spyOn(global.Date, "now")
-      .mockImplementationOnce(() => testStartTime + testPurgeInterval);
+      .mockImplementationOnce(() => testStartTime + testPurgeIntervalMilliseconds);
     cache.set(testKey2, testValue);
 
     // Act/Assert 1
     jest
       .spyOn(global.Date, "now")
-      .mockImplementationOnce(() => testStartTime + testPurgeInterval + 2);
-    jest.advanceTimersByTime(testPurgeInterval);
+      .mockImplementationOnce(() => testStartTime + testPurgeIntervalMilliseconds + 2);
+    jest.advanceTimersByTime(testPurgeIntervalMilliseconds);
     let retrieved1 = cache.get(testKey1);
     let retrieved2 = cache.get(testKey2);
-    expect(retrieved1).toBeUndefined();
+    expect(retrieved1).toBeNull();
     expect(retrieved2).toBeDefined();
 
     jest
       .spyOn(global.Date, "now")
-      .mockImplementationOnce(() => testStartTime + testPurgeInterval * 2 + 2);
-    jest.advanceTimersByTime(testPurgeInterval * 2);
+      .mockImplementationOnce(() => testStartTime + testPurgeIntervalMilliseconds * 2 + 2);
+    jest.advanceTimersByTime(testPurgeIntervalMilliseconds * 2);
     retrieved1 = cache.get(testKey1);
     retrieved2 = cache.get(testKey2);
 
     // Assert Final
-    expect(retrieved1).toBeUndefined();
-    expect(retrieved2).toBeUndefined();
+    expect(retrieved1).toBeNull();
+    expect(retrieved2).toBeNull();
   });
 
   test("should list snapshot of keys", () => {
@@ -147,7 +149,7 @@ describe("AgingCache.ts", () => {
     const testKey1 = "TEST_KEY1";
     const testKey2 = "TEST_KEY2";
     const testValue = "TEST_VALUE";
-    const cache: AgingCache<string, string> = new AgingCache();
+    const cache: MemoryAgingCache<string, string> = new MemoryAgingCache();
 
     // Act
     cache.set(testKey1, testValue);
@@ -170,7 +172,7 @@ describe("AgingCache.ts", () => {
     const testKey = "TEST_KEY";
     const testValue1 = "TEST_VALUE1";
     const testValue2 = "TEST_VALUE2";
-    const cache: AgingCache<string, string> = new AgingCache();
+    const cache: MemoryAgingCache<string, string> = new MemoryAgingCache();
 
     // Act
     cache.set(testKey, testValue1);

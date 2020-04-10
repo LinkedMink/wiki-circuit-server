@@ -1,94 +1,98 @@
-interface IAgingValue<T> {
+export interface IAgingValue<T> {
   time: number;
   data: T;
 }
 
-export class AgingCache<TKey, TValue> {
+/**
+ * Exposes an interface for storing temporary values that need to be refreshed
+ * at regular intervals.
+ */
+export abstract class AgingCache<TKey, TValue> implements IDisposable {
+  private readonly _maxEntries?: number;
+  private readonly _maxAge: number;
+  private readonly _purgeInterval: number;
+  private readonly _purgeTimer: NodeJS.Timeout;
 
-  private maxEntries?: number;
-  private maxAge: number;
-  private purgeInterval: number;
-  private entries: Map<TKey, IAgingValue<TValue>> = new Map();
-  private evictQueue: TKey[] = [];
+  /**
+   * @param maxEntries The maximum number of entries to store in the cache, undefined for no max
+   * @param maxAge The maximum time to keep entries in minutes
+   * @param purgeInterval The interval to check for old entries in seconds
+   */
   constructor(
     maxEntries?: number,
-    maxAge = 12000000, // 200 Min
-    purgeInterval = 30000) { // 30 Sec
+    maxAge = 200,
+    purgeInterval = 30) {
+    
+    this._maxEntries = maxEntries;
+    this._maxAge = maxAge * 1000 * 60;
+    this._purgeInterval = purgeInterval * 1000;
 
     if (maxEntries !== undefined && maxEntries < 1) {
       throw new Error(`maxEntries(${maxEntries}): must be greater than 0`);
     }
 
-    if (maxAge <= purgeInterval) {
-      throw new Error(`maxAge(${maxAge}): must be greater than purgeInterval(${purgeInterval})`);
+    if (this._maxAge <= this._purgeInterval) {
+      throw new Error(`maxAge(${this._maxAge}): must be greater than purgeInterval(${this._purgeInterval})`);
     }
 
-    if (purgeInterval < 10000) {
+    if (purgeInterval < 10) {
       throw new Error(`purgeInterval(${purgeInterval}): must be greater than 10 seconds`);
     }
 
-    this.maxEntries = maxEntries;
-    this.maxAge = maxAge;
-    this.purgeInterval = purgeInterval;
-
-    setInterval(this.purge, this.purgeInterval);
+    this._purgeTimer = setInterval(this.purge.bind(this), this._purgeInterval);
   }
 
-  public get = (key: TKey): TValue | undefined => {
-    const entry = this.entries.get(key);
-    if (entry) {
-      return entry.data;
-    }
-
-    return undefined;
+  public dispose(): void {
+    clearInterval(this._purgeTimer);
   }
 
-  public set = (key: TKey, value: TValue) => {
-    while (this.maxEntries && this.entries.size >= this.maxEntries) {
-      this.evict();
-    }
+  /**
+   * @param key The key to retrieve
+   * @returns The value if it's in the cache or undefined
+   */
+  public abstract get(key: TKey): TValue | null | Promise<TValue | null>;
 
-    if (this.entries.has(key)) {
-      this.entries.delete(key);
-    }
+  /**
+   * @param key The key to set
+   * @param value The value to set
+   * @returns If setting the value was successful
+   */
+  public abstract set(key: TKey, value: TValue): boolean | Promise<boolean>;
 
-    const cacheEntryTime = { time: Date.now(), data: value };
-    this.entries.set(key, cacheEntryTime);
-    this.evictQueue.push(key);
+  /**
+   * @param key The key to the value to delete
+   * @returns If deleting the value was successful
+   */
+  public abstract delete(key: TKey): boolean | Promise<boolean>;
+
+  /**
+   * @returns The keys that are currently in the cache
+   */
+  public abstract keys(): TKey[] | Promise<TKey[]>;
+
+  /**
+   * Clear stale entries from the cache
+   */
+  public abstract purge(): void;
+
+  /**
+   * @returns The maximum number of entries to store in the cache, undefined for no max
+   */
+  public get maxEntries(): number | undefined {
+    return this._maxEntries;
   }
 
-  public keys = () => {
-    return this.evictQueue.slice();
+  /**
+   * @returns The maximum time to keep entries in milliseconds
+   */
+  public get maxAge(): number {
+    return this._maxAge;
   }
 
-  public delete = (id: TKey) => {
-    this.entries.delete(id);
-    for (let i = 0; i < this.evictQueue.length; i++) {
-      if (this.evictQueue[i] === id) {
-        this.evictQueue.splice(i, 1);
-        return;
-      }
-    }
-  }
-
-  private evict = () => {
-    const nextKey = this.evictQueue.shift();
-    if (nextKey) {
-      this.entries.delete(nextKey);
-    }
-  }
-
-  private purge = () => {
-    let hasEntriesToEvict = this.evictQueue.length > 0;
-    while (hasEntriesToEvict) {
-      const nextKey = this.evictQueue[0];
-      const nextEntry = this.entries.get(nextKey);
-
-      if (nextEntry && nextEntry.time + this.maxAge < Date.now()) {
-        this.evict();
-      } else {
-        hasEntriesToEvict = false;
-      }
-    }
+  /**
+   * @returns The interval to check for old entries in milliseconds
+   */
+  public get purgeInterval(): number {
+    return this._purgeInterval;
   }
 }

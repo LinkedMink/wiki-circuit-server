@@ -120,11 +120,11 @@ export class ArticleJobWork extends JobWork {
     /* TODO Predicted work should expand exponentially with depth not linearly */
     const total0 = this.totals.get(0);
     if (this.job && total0) {
-      this.job.progress = {
+      this.job.progress({
         completed: total0.downloaded / total0.queued,
         message: "",
         data: mapToObject(this.totals),
-      };
+      });
     }
   }
 

@@ -12,7 +12,7 @@ if [ -z "$DOCKER_REGISTRY" ]; then
 fi
 
 if [ -z "$KUBERNETES_NAMESPACE" ]; then
-  KUBERNETES_NAMESPACE="default" 
+  KUBERNETES_NAMESPACE="wiki-circuit" 
 fi
 
 npm run build

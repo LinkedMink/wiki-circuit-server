@@ -13,7 +13,7 @@ describe("Job.ts", () => {
 
     // Act
     const job = new Job(testId, mockJobWork);
-    const jobStatus = job.status;
+    const jobStatus = job.status();
 
     // Assert
     expect(jobStatus.id).toEqual(testId);
@@ -28,7 +28,7 @@ describe("Job.ts", () => {
     // Act
     const job = new Job(testId, mockJobWork);
     job.start({});
-    const jobStatus = job.status;
+    const jobStatus = job.status();
 
     // Assert
     expect(mockJobWork.doWork).toHaveBeenCalled();
@@ -49,13 +49,13 @@ describe("Job.ts", () => {
     const job = new Job(testId, mockJobWork);
     job.start({});
     job.complete(testResult);
-    const jobStatus = job.status;
+    const jobStatus = job.status();
 
     // Assert
     expect(jobStatus.endTime).not.toEqual(0);
     expect(jobStatus.status).toEqual(JobStatus.Complete);
     expect(jobStatus.result).toEqual(testResult);
-    expect(job.result).toEqual(testResult);
+    expect(job.result()).toEqual(testResult);
   });
 
   test("fault() should set state to faulted and set error message", () => {
@@ -68,7 +68,7 @@ describe("Job.ts", () => {
     const job = new Job(testId, mockJobWork);
     job.start({});
     job.fault(testFault);
-    const jobStatus = job.status;
+    const jobStatus = job.status();
 
     // Assert
     expect(jobStatus.endTime).not.toEqual(0);
@@ -86,7 +86,7 @@ describe("Job.ts", () => {
     const job = new Job(testId, mockJobWork);
     job.start({});
     job.fault(testFault);
-    const jobStatus = job.status;
+    const jobStatus = job.status();
 
     // Assert
     expect(jobStatus.progress.message).toEqual(testFault.message);
@@ -105,8 +105,8 @@ describe("Job.ts", () => {
     // Act
     const job = new Job(testId, mockJobWork);
     job.start({});
-    job.progress = testProgress;
-    const jobStatus = job.status;
+    job.progress(testProgress);
+    const jobStatus = job.status();
 
     // Assert
     expect(jobStatus.progress).toEqual(testProgress);

@@ -1,16 +1,16 @@
 import { logger } from "../logger";
-import { IProgress, JobStatus, JobWork } from "./jobInterfaces";
+import { IProgress, JobStatus, JobWork, IJob } from "./jobInterfaces";
 
-export class Job {
-  set progress(value: IProgress) {
+export class Job implements IJob {
+  progress(value: IProgress) {
     this.progressState = value;
   }
 
-  get result(): object | undefined {
+  result(): object | null {
     return this.resultObject;
   }
 
-  get status() {
+  status() {
     return {
       status: this.jobStatus,
       id: this.id,
@@ -31,7 +31,8 @@ export class Job {
     message: "",
     data: {},
   };
-  private resultObject?: object;
+  private resultObject: object | null = null;
+  
   constructor(
     private id: string,
     private work: JobWork) {}

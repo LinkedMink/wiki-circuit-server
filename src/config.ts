@@ -15,6 +15,9 @@ export enum ConfigKey {
   JobMaxParallelDownloads = "JOB_MAX_PARALLEL_DOWNLOADS",
   JobCacheKeepMinutes = "JOB_CACHE_KEEP_MINUTES",
   JobCacheMaxEntries = "JOB_CACHE_MAX_ENTRIES",
+  RedisMode = "REDIS_MODE",
+  RedisHosts = "REDIS_HOSTS",
+  RedisKeyPrefix = "REDIS_KEY_PREFIX",
 }
 
 const configDefaultMap: Map<ConfigKey, string | undefined> = new Map([
@@ -22,11 +25,13 @@ const configDefaultMap: Map<ConfigKey, string | undefined> = new Map([
   [ConfigKey.ListenPort, "8080"],
   [ConfigKey.LogFile, "combined.log"],
   [ConfigKey.LogLevel, "info"],
-
   [ConfigKey.JobMaxDepth, "3"],
   [ConfigKey.JobMaxParallelDownloads, "10"],
   [ConfigKey.JobCacheKeepMinutes, "360"],
   [ConfigKey.JobCacheMaxEntries, "30"],
+  [ConfigKey.RedisMode, "Single"],
+  [ConfigKey.RedisHosts, JSON.stringify({host: "localhost", port: 6379})],
+  [ConfigKey.RedisKeyPrefix, "wiki-circuit"],
 ]);
 
 export class EnvironmentalConfig {

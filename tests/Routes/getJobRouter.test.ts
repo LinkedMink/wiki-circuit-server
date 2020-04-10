@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+
 import express from "express";
 import { Router } from "express";
 import expressWs from "express-ws";
@@ -6,7 +8,7 @@ import { getJobRouter } from "../../src/Routes/getJobRouter";
 import { Job } from "../../src/Shared/job";
 import { JobWork } from "../../src/Shared/jobInterfaces";
 import { ResponseStatus } from "../../src/Shared/response";
-// import { AgingCache } from '../../src/Shared/AgingCache'
+import { AgingCache } from "../../src/Shared/agingCache";
 
 // jest.mock('../../src/Shared/AgingCache');
 
@@ -14,8 +16,27 @@ const app = express();
 expressWs(app);
 
 class MockJobWork extends JobWork {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
   public doWork(job: Job, params: any): void {}
+}
+
+class MockAgingCache extends AgingCache<string, Job> {
+  public get(key: string): Job | null {
+    return null;
+  }
+
+  public set(key: string, value: Job) {
+    return true;
+  }
+
+  public delete(key: string) {
+    return true;
+  }
+
+  public keys() {
+    return [];
+  }
+
+  public purge() {}
 }
 
 describe("getJobRouter.ts", () => {
@@ -44,7 +65,7 @@ describe("getJobRouter.ts", () => {
 
   const getRouteHandler = (path: string, method: string) => {
     if (router === null) {
-      router = getJobRouter(() => new MockJobWork());
+      router = getJobRouter(new MockAgingCache(), () => new MockJobWork());
     }
 
     const routeLayer = router.stack.filter((layer) => {

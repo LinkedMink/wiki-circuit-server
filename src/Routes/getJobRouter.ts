@@ -1,24 +1,46 @@
 import express, { Request, Response } from "express";
 import WebSocket from "ws";
 
-import { config, ConfigKey } from "../config";
-import { AgingCache } from "../Shared/agingCache";
 import { Job } from "../Shared/job";
-import { JobStatus, JobWork } from "../Shared/jobInterfaces";
+import { JobStatus, JobWork, IJob } from "../Shared/jobInterfaces";
 import { getResponseObject, ResponseStatus } from "../Shared/response";
+import { AgingCache } from "../Shared/agingCache";
+import { logger } from "../logger";
 
-export const getJobRouter = (createWork: () => JobWork) => {
+export const getJobRouter = (jobCache: AgingCache<string, IJob>, createWork: () => JobWork) => {
   const router = express.Router();
 
-  const jobCache: AgingCache<string, Job> = new AgingCache(
-    config.getNumber(ConfigKey.JobCacheMaxEntries),
-    config.getNumber(ConfigKey.JobCacheKeepMinutes) * 60 * 1000);
+  const executeOnPromiseOrEntry = <TEntry>(
+    entry: null | TEntry | Promise<TEntry | null>, 
+    execute: (toExecuteOn: TEntry) => boolean): boolean => {
+
+    if (entry instanceof Promise) {
+      entry.then((entryResult) => {
+        if (entryResult) {
+          return execute(entryResult);
+        } 
+      }).catch((error) => {
+        if (error.stack) {
+          logger.error(error.stack);
+        }
+        logger.error(error);
+      })
+    } else if (entry) {
+      return execute(entry);
+    }
+
+    return false;
+  }
 
   const getCachedJobIdsHandler = (req: Request, res: Response) => {
     const response = getResponseObject();
-    response.data = jobCache.keys();
+    const keysHandler = (keys: string[]) => {
+      response.data = keys;
+      res.send(response);
+      return true;
+    }
 
-    res.send(response);
+    executeOnPromiseOrEntry(jobCache.keys(), keysHandler);
   };
 
   const getJobByIdHandler = (req: Request, res: Response) => {
@@ -32,16 +54,18 @@ export const getJobRouter = (createWork: () => JobWork) => {
       res.send(response);
       return;
     }
-
-    const job = jobCache.get(id);
-    if (job) {
-      response.data = job.status;
-      const result = job.result;
+    
+    const entryHandler = (job: IJob) => {
+      response.data = job.status();
+      const result = job.result();
       if (result) {
         (response.data as any).result = result;
       }
 
       res.send(response);
+      return true;
+    }
+    if (executeOnPromiseOrEntry(jobCache.get(id), entryHandler)) {
       return;
     }
 
@@ -63,25 +87,28 @@ export const getJobRouter = (createWork: () => JobWork) => {
       return;
     }
 
-    const job = jobCache.get(id);
-    if (job) {
-      if (job.status.status === JobStatus.Complete) {
+    const entryHandler = (job: IJob) => {
+      if (job.status().status === JobStatus.Complete) {
         response.status = ResponseStatus.Failed;
         response.message = `Job already completed and cached: ${id}`;
         res.status(400);
         res.send(response);
-        return;
+        return true;
       }
 
-      if (job.status.status !== JobStatus.Faulted) {
+      if (job.status().status !== JobStatus.Faulted) {
         response.status = ResponseStatus.Failed;
         response.message = `Job already started: ${id}`;
         res.status(400);
         res.send(response);
-        return;
+        return true;
       }
 
       jobCache.delete(id);
+      return false;
+    }
+    if (executeOnPromiseOrEntry(jobCache.get(id), entryHandler)) {
+      return;
     }
 
     const newJob = new Job(id, createWork());
@@ -113,10 +140,12 @@ export const getJobRouter = (createWork: () => JobWork) => {
         return;
       }
 
-      const job = jobCache.get(data.id);
-      if (job) {
-        response.data = job.status.progress;
+      const entryHandler = (job: IJob) => {
+        response.data = job.status().progress;
         ws.send(JSON.stringify(response));
+        return true;
+      }
+      if (executeOnPromiseOrEntry(jobCache.get(data.id), entryHandler)) {
         return;
       }
 
