@@ -5,7 +5,7 @@ import {
   MemoryStorageProvider, 
   StorageHierarchy, 
   createAgingCache 
-} from "multilevel-aging-cache";
+} from "@linkedmink/multilevel-aging-cache";
 
 import { config, ConfigKey } from "../Config";
 import { ArticleJobWork } from "../Article/ArticleJobWork";

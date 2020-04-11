@@ -1,4 +1,4 @@
-import { getResponseObject, ResponseStatus } from "../../src/Shared/IResponseData";
+import { getResponseObject, ResponseStatus } from "../../src/Models/IResponseData";
 
 describe("IResponseData.ts", () => {
   test("getMessageObject should return standard empty response interface", () => {

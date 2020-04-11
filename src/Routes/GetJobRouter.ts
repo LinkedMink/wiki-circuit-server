@@ -1,15 +1,12 @@
 import express, { Request, Response } from "express";
-import { IAgingCache, AgingCacheWriteStatus } from "multilevel-aging-cache";
+import { IAgingCache, AgingCacheWriteStatus } from "@linkedmink/multilevel-aging-cache";
 import WebSocket from "ws";
 
 import { Job } from "../Shared/Job";
 import { JobStatus, IJobWork, IJob } from "../Shared/JobInterfaces";
-import { getResponseFailed, getResponseSuccess } from "../Shared/IResponseData";
+import { getResponseFailed, getResponseSuccess } from "../Models/IResponseData";
+import { IJobIdParams } from "../Models/IJobParameters";
 //import { logger } from "../Logger";
-
-interface IIdParams {
-  id?: string;
-}
 
 export const getJobRouter = (jobCache: IAgingCache<string, IJob>, createWork: () => IJobWork) => {
   const router = express.Router();
@@ -68,6 +65,8 @@ export const getJobRouter = (jobCache: IAgingCache<string, IJob>, createWork: ()
 
   const postJobByIdHandler = async (req: Request, res: Response) => {
     const id = req.body.id;
+    const refresh = req.body.refresh;
+
     if (!id) {
       res.status(400);
       return res.send(
@@ -79,19 +78,21 @@ export const getJobRouter = (jobCache: IAgingCache<string, IJob>, createWork: ()
       return startJob(id, req, res);
     }
 
-    if (job.status().status === JobStatus.Complete) {
-      res.status(400);
-      return res.send(
-        getResponseFailed(`Job already completed and cached: ${id}`));
+    if (!refresh) {
+      if (job.status().status === JobStatus.Complete) {
+        res.status(400);
+        return res.send(
+          getResponseFailed(`Job already completed and cached: ${id}`));
+      }
+  
+      if (job.status().status !== JobStatus.Faulted) {
+        res.status(400);
+        return res.send(
+          getResponseFailed(`Job already started: ${id}`));
+      }
     }
 
-    if (job.status().status !== JobStatus.Faulted) {
-      res.status(400);
-      return res.send(
-        getResponseFailed(`Job already started: ${id}`));
-    }
-
-    const deleteStatus = await jobCache.delete(id);
+    const deleteStatus = await jobCache.delete(id, true);
     if (deleteStatus == AgingCacheWriteStatus.Success) {
       return startJob(id, req, res);
     }
@@ -103,7 +104,7 @@ export const getJobRouter = (jobCache: IAgingCache<string, IJob>, createWork: ()
 
   const webSocketConnectedHandler = (ws: WebSocket) => {
     ws.on("message", (message) => {
-      let data: IIdParams;
+      let data: IJobIdParams;
       try {
         data = JSON.parse(message.toString());
       } catch (e) {

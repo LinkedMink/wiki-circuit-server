@@ -2,7 +2,7 @@ import {
   RedisStorageProvider,
   IRedisStorageProviderOptions,
   StringSerializer
-} from "multilevel-aging-cache";
+} from "@linkedmink/multilevel-aging-cache";
 import Redis from "ioredis";
 
 import { config, ConfigKey } from "./Config";

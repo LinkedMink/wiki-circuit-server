@@ -24,9 +24,14 @@ if [ "$1" = "deploy" ]; then
     --namespace="${KUBERNETES_NAMESPACE}"
 fi
 
+#docker buildx build \
+#  --platform "${ARCHITECTURES}" \
+#  --build-arg SSH_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)" \
+#  -t "${DOCKER_REGISTRY}${DOCKER_SCOPE}${IMAGE_NAME}:latest" \
+#  --push .
+
 docker buildx build \
   --platform "${ARCHITECTURES}" \
-  --build-arg SSH_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)" \
   -t "${DOCKER_REGISTRY}${DOCKER_SCOPE}${IMAGE_NAME}:latest" \
   --push .
 

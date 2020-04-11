@@ -21,10 +21,6 @@ used to build the software.
 This project host an API for managing jobs that download Wikipedia article data and builds a map of which articles link to 
 each other. The project includes routes to start a job, get the result/status, and view an index of all jobs in progress. 
 
-## TODO 1.1.0
-npm uninstall multilevel-aging-cache
-npm install github:LinkedMink/multilevel-aging-cache#master
-
 ### Sample App
 Try it out: [http://wiki-circuit.linkedmink.space/](http://wiki-circuit.linkedmink.space/)
 

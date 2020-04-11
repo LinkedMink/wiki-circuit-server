@@ -1,4 +1,4 @@
-import { Logger as CacheLogger } from "multilevel-aging-cache";
+import { Logger as CacheLogger } from "@linkedmink/multilevel-aging-cache";
 import winston, { LoggerOptions } from "winston";
 import TransportStream from 'winston-transport'
 

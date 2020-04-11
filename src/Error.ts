@@ -1,6 +1,6 @@
 import { CORS_ERROR } from "./Cors";
 import { Logger } from "./Logger";
-import { getResponseObject, ResponseStatus } from "./Shared/IResponseData";
+import { getResponseObject, ResponseStatus } from "./Models/IResponseData";
 
 const logger = Logger.get("errorMiddleware");
 

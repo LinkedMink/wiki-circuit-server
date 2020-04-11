@@ -1,11 +1,11 @@
 import express from "express";
 import { Router } from "express";
 import expressWs from "express-ws";
-import { IAgingCache } from "multilevel-aging-cache";
+import { IAgingCache } from "@linkedmink/multilevel-aging-cache";
 
 import { getJobRouter } from "../../src/Routes/GetJobRouter";
 import { IJobWork, IJob } from "../../src/Shared/JobInterfaces";
-import { ResponseStatus } from "../../src/Shared/IResponseData";
+import { ResponseStatus } from "../../src/Models/IResponseData";
 
 // jest.mock('../../src/Shared/AgingCache');
 

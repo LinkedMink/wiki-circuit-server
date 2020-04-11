@@ -1,4 +1,4 @@
-import { ISerializer } from "multilevel-aging-cache";
+import { ISerializer } from "@linkedmink/multilevel-aging-cache";
 
 import { IJob, JobData } from "./JobInterfaces";
 
