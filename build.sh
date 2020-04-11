@@ -8,12 +8,14 @@ if [ -z "$DOCKER_SCOPE" ]; then
 fi
 
 if [ -z "$DOCKER_REGISTRY" ]; then
-  DOCKER_REGISTRY="" 
+  DOCKER_REGISTRY="registry.linkedmink.space/" 
 fi
 
 if [ -z "$KUBERNETES_NAMESPACE" ]; then
   KUBERNETES_NAMESPACE="wiki-circuit" 
 fi
+
+npm run build
 
 if [ "$1" = "deploy" ]; then
   kubectl set image \
@@ -24,6 +26,7 @@ fi
 
 docker buildx build \
   --platform "${ARCHITECTURES}" \
+  --build-arg SSH_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)" \
   -t "${DOCKER_REGISTRY}${DOCKER_SCOPE}${IMAGE_NAME}:latest" \
   --push .
 
