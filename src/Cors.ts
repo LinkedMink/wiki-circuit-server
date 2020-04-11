@@ -10,7 +10,7 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-if (originsData.length) {
+if (Array.isArray(originsData)) {
   corsOptions.origin = (origin: string, callback: any) => {
     if (originsData.includes(origin)) {
       callback(null, true);

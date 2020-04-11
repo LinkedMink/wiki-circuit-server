@@ -1,7 +1,9 @@
-import { logger } from "../Logger";
+import { Logger } from "../Logger";
 import { IProgress, JobStatus, JobWork, IJob } from "./JobInterfaces";
 
 export class Job implements IJob {
+  private static readonly logger = Logger.get('Job');
+
   progress(value: IProgress) {
     this.progressState = value;
   }
@@ -43,7 +45,7 @@ export class Job implements IJob {
 
     this.work.doWork(this, params);
 
-    logger.info(`Started: ${this.id} @ ${this.startTime}`);
+    Job.logger.info(`Started: ${this.id} @ ${this.startTime}`);
   }
 
   public complete = (result: object) => {
@@ -56,12 +58,12 @@ export class Job implements IJob {
   public fault = (error?: Error | string) => {
     if (typeof error === "string") {
       this.progressState.message = error;
-      logger.error(error);
+      Job.logger.error(error);
     } else if (error instanceof Error) {
       this.progressState.message = error.message;
-      logger.error(error.message);
+      Job.logger.error(error.message);
       if (error.stack) {
-        logger.error(error.stack);
+        Job.logger.error(error.stack);
       }
     }
 
@@ -73,6 +75,6 @@ export class Job implements IJob {
     this.endTime = Date.now();
     this.runTime = this.endTime - this.startTime;
 
-    logger.info(`Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`);
+    Job.logger.info(`Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`);
   }
 }

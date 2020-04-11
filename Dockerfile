@@ -1,8 +1,10 @@
 FROM node:12-alpine
 
+ARG ENVIRONMENT=production
 ARG SSH_PRIVATE_KEY
 
-ENV NODE_ENV production
+ENV NODE_ENV ENVIRONMENT
+ENV IS_CONTAINER_ENV true
 
 RUN apk update
 RUN apk add --no-cache openssh-client git
@@ -18,10 +20,12 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm ci --only=production
-RUN rm -rf /root/.ssh/
+RUN npm install
 
 COPY . .
+
+RUN npm prune --production
+RUN rm -rf /root/.ssh/
 
 EXPOSE 8080
 

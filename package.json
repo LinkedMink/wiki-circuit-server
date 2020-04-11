@@ -17,7 +17,7 @@
     "build": "tsc",
     "startApp": "node -r dotenv/config ./build/src/App.js",
     "watch": "ts-node-dev --respawn --transpileOnly ./src/App.ts",
-    "test": "cross-env NODE_ENV=test jest",
+    "test": "cross-env NODE_ENV=unitTest jest",
     "lint": "eslint -c .eslintrc.js --ext .ts ./src ./tests",
     "lintFix": "eslint -c .eslintrc.js --ext .ts --fix ./src ./tests",
     "containerize": "npm run build && docker build -t linkedmink/wiki-circuit-server ."

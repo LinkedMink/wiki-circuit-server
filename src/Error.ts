@@ -1,8 +1,11 @@
 import { CORS_ERROR } from "./Cors";
-import { logger } from "./Logger";
-import { getResponseObject, ResponseStatus } from "./Shared/Response";
+import { Logger } from "./Logger";
+import { getResponseObject, ResponseStatus } from "./Shared/IResponseData";
 
-export const errorMiddleware = (error: any, req: any, res: any) => {
+const logger = Logger.get("errorMiddleware");
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const errorMiddleware = (error: any, req: any, res: any, next: any) => {
   if (error && error.stack) {
     if (error.stack) {
       logger.error(error.stack);

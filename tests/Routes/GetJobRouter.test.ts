@@ -5,7 +5,7 @@ import { IAgingCache } from "multilevel-aging-cache";
 
 import { getJobRouter } from "../../src/Routes/GetJobRouter";
 import { JobWork, IJob } from "../../src/Shared/JobInterfaces";
-import { ResponseStatus } from "../../src/Shared/Response";
+import { ResponseStatus } from "../../src/Shared/IResponseData";
 
 // jest.mock('../../src/Shared/AgingCache');
 

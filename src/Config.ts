@@ -2,7 +2,8 @@ import fs from "fs";
 
 export enum Environment {
   Local = "local",
-  Test = "test",
+  UnitTest = "unitTest",
+  Development = "development",
   Production = "production",
 }
 
@@ -37,19 +38,26 @@ const configDefaultMap: Map<ConfigKey, string | undefined> = new Map([
 export class EnvironmentalConfig {
   private fileBuffers: Map<ConfigKey, Buffer> = new Map();
   private jsonObjects: Map<ConfigKey, { [key: string]: any }> = new Map();
-  private isEnvironmentLocalValue: boolean =
-    !process.env.NODE_ENV || process.env.NODE_ENV === Environment.Local;
   private packageJsonValue: { [key: string]: any };
 
   constructor() {
-      // const filePath = isEnvironmentLocal ? "../package.json" : "./package.json";
+    // const filePath = isEnvironmentLocal ? "../package.json" : "./package.json";
     const filePath = "./package.json";
     const data = fs.readFileSync(filePath, "utf8");
     this.packageJsonValue = JSON.parse(data);
   }
 
   public get isEnvironmentLocal(): boolean {
-    return this.isEnvironmentLocalValue;
+    return !process.env.NODE_ENV || process.env.NODE_ENV === Environment.Local;
+  }
+
+  public get isEnvironmentUnitTest(): boolean {
+    return process.env.NODE_ENV === Environment.UnitTest;
+  }
+
+  public get isEnvironmentContainerized(): boolean {
+    return process.env.IS_CONTAINER_ENV !== undefined && 
+      process.env.IS_CONTAINER_ENV.trim().toLowerCase() === 'true';
   }
 
   public get packageJson(): { [key: string]: any } {
@@ -102,7 +110,7 @@ export class EnvironmentalConfig {
       return buffer;
     }
 
-    if (process.env.NODE_ENV === Environment.Test) {
+    if (process.env.NODE_ENV === Environment.UnitTest) {
       return Buffer.alloc(0);
     }
 

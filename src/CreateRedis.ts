@@ -9,12 +9,15 @@ import { config, ConfigKey } from "./Config";
 import { JobSerializer } from "./Shared/JobSerializer";
 import { IJob } from "./Shared/JobInterfaces";
 
-const DEFAULT_SENTINAL_GROUP_NAME = "defaultRedisGroup";
-
 export enum RedisMode {
   Single = "Single",
-  Sentinal = "Sentinal",
+  Sentinel = "Sentinel",
   Cluster = "Cluster"
+}
+
+interface ISentinelGroup {
+  sentinels: [{ host: string; port: number }];
+  name: string;
 }
 
 const createRedisClient = () => {
@@ -23,18 +26,15 @@ const createRedisClient = () => {
   const mode = stringMode as RedisMode;
 
   if (mode === RedisMode.Single) {
-    return new Redis(hosts.port, hosts.name);
-  } else if (mode === RedisMode.Sentinal) {
-    const hostArray = hosts as [{ host: string; port: number }]
-    return new Redis({
-      sentinels: hostArray,
-      name: DEFAULT_SENTINAL_GROUP_NAME
-    }); 
+    return new Redis(hosts.port, hosts.host);
+  } else if (mode === RedisMode.Sentinel) {
+    const group = hosts as ISentinelGroup
+    return new Redis(group); 
   } /* else if (mode === RedisMode.Cluster) {
     const hostArray = hosts as [{ host: string; port: number }]
     return new Redis.Cluster(hostArray);
   } */ else {
-    throw Error(`Unsupported RedisMode: ${stringMode}; Can be Single, Sentinal, or Cluster`);
+    throw Error(`Unsupported RedisMode: ${stringMode}; Can be Single, Sentinel, or Cluster`);
   }
 }
 
