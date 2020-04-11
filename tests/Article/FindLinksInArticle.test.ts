@@ -2,7 +2,7 @@ import fs from "fs";
 
 import { findLinksInArticle } from "../../src/Article/FindLinksInArticle";
 
-describe("findLinksInArticle.ts", () => {
+describe("FindLinksInArticle.ts", () => {
   test("should return no links if not an HTML page", () => {
     // Act
     const links = findLinksInArticle("");
