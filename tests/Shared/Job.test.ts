@@ -1,8 +1,9 @@
 import { Job } from "../../src/Shared/Job";
-import { IProgress, JobStatus, JobWork } from "../../src/Shared/JobInterfaces";
+import { IProgress, JobStatus, IJobWork } from "../../src/Shared/JobInterfaces";
 
-class MockJobWork extends JobWork {
-  public doWork = jest.fn();
+class MockJobWork implements IJobWork {
+  doWork = jest.fn();
+  stop = jest.fn().mockResolvedValue(undefined);
 }
 
 describe("Job.ts", () => {

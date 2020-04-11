@@ -4,7 +4,7 @@ import expressWs from "express-ws";
 import { IAgingCache } from "multilevel-aging-cache";
 
 import { getJobRouter } from "../../src/Routes/GetJobRouter";
-import { JobWork, IJob } from "../../src/Shared/JobInterfaces";
+import { IJobWork, IJob } from "../../src/Shared/JobInterfaces";
 import { ResponseStatus } from "../../src/Shared/IResponseData";
 
 // jest.mock('../../src/Shared/AgingCache');
@@ -12,8 +12,9 @@ import { ResponseStatus } from "../../src/Shared/IResponseData";
 const app = express();
 expressWs(app);
 
-class MockJobWork extends JobWork {
+class MockJobWork implements IJobWork {
   doWork = jest.fn();
+  stop = jest.fn().mockResolvedValue(undefined);
 }
 
 class MockAgingCache implements IAgingCache<string, IJob> {

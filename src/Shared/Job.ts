@@ -1,11 +1,18 @@
 import { Logger } from "../Logger";
-import { IProgress, JobStatus, JobWork, IJob } from "./JobInterfaces";
+import { IProgress, JobStatus, IJobWork, IJob, ProgressHandler } from "./JobInterfaces";
+import { config, ConfigKey } from "../Config";
+
+const progressReportThreshold = config.getNumber(ConfigKey.JobProgressReportThreshold);
 
 export class Job implements IJob {
   private static readonly logger = Logger.get('Job');
+  private lastProgressReport = 0;
 
   progress(value: IProgress) {
     this.progressState = value;
+    if (this.lastProgressReport + progressReportThreshold > value.completed) {
+      this.reportProgress();
+    }
   }
 
   result(): object | null {
@@ -36,8 +43,9 @@ export class Job implements IJob {
   private resultObject: object | null = null;
   
   constructor(
-    private id: string,
-    private work: JobWork) {}
+    private readonly id: string,
+    private readonly work: IJobWork,
+    private readonly progressListener?: ProgressHandler) {}
 
   public start = (params: any) => {
     this.jobStatus = JobStatus.Running;
@@ -46,6 +54,10 @@ export class Job implements IJob {
     this.work.doWork(this, params);
 
     Job.logger.info(`Started: ${this.id} @ ${this.startTime}`);
+  }
+
+  public stop = (): Promise<void> => {
+    return this.work.stop();
   }
 
   public complete = (result: object) => {
@@ -76,5 +88,13 @@ export class Job implements IJob {
     this.runTime = this.endTime - this.startTime;
 
     Job.logger.info(`Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`);
+    this.reportProgress();
+  }
+
+  private reportProgress = () => {
+    if (this.progressListener !== undefined) {
+      this.progressListener(this);
+      this.lastProgressReport = this.progressState.completed;
+    }
   }
 }

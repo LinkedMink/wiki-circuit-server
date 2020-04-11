@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 import { config, ConfigKey } from "../Config";
 import { mapToObject } from "../Shared/CollectionHelpers";
 import { Job } from "../Shared/Job";
-import { JobWork } from "../Shared/JobInterfaces";
+import { IJobWork } from "../Shared/JobInterfaces";
 import { IArticleResult } from "./ArticleResult";
 import { findLinksInArticle } from "./FindLinksInArticle";
 
@@ -17,7 +17,7 @@ interface ILinkTotals {
   downloaded: number;
 }
 
-export class ArticleJobWork extends JobWork {
+export class ArticleJobWork implements IJobWork {
 
   private job?: Job;
   private articleName = "";
@@ -26,9 +26,9 @@ export class ArticleJobWork extends JobWork {
   private queue: Map<string, number> = new Map();
   private downloading: Set<string> = new Set();
   private activePromises: Set<Promise<void>> = new Set();
+  private isStopping = false;
   private totals: Map<number, ILinkTotals>;
   constructor() {
-    super();
     const totals = new Map([
       [0, { links: 1, queued: 1, downloaded: 0 }],
       [1, { links: 1, queued: 1, downloaded: 0 }],
@@ -43,6 +43,11 @@ export class ArticleJobWork extends JobWork {
     this.job = job;
     this.articleName = params.id;
     this.getArticleHtml(this.articleName, 1);
+  }
+
+  public stop = (): Promise<void> => {
+    this.finishError();
+    return Promise.all(this.activePromises).then(() => undefined);
   }
 
   private getArticleHtml = (articleName: string, depth: number) => {

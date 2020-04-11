@@ -11,6 +11,8 @@ export interface IProgress {
   data: object;
 }
 
+export type ProgressHandler = (job: IJob) => void
+
 export interface IJobStatus {
   status: JobStatus;
   id: string;
@@ -27,6 +29,7 @@ export interface IJob {
   status(): IJobStatus;
 
   start(params: any): void;
+  stop(): Promise<void>;
   complete(result: object): void;
   fault(error?: Error | string): void;
 }
@@ -52,6 +55,10 @@ export class JobData implements IJob {
     throw new Error("Method not implemented.");
   }
 
+  stop(): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   complete(result: object): void {
     throw new Error("Method not implemented.");
@@ -63,6 +70,7 @@ export class JobData implements IJob {
   }
 }
 
-export abstract class JobWork {
-  public abstract doWork(job: IJob, params: any): void;
+export interface IJobWork {
+  doWork(job: IJob, params: any): void;
+  stop(): Promise<void>;
 }
