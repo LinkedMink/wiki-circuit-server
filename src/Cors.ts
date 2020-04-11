@@ -1,6 +1,6 @@
 import cors from "cors";
 
-import { config, ConfigKey } from "./config";
+import { config, ConfigKey } from "./Config";
 
 export const CORS_ERROR = "Not allowed by CORS";
 
@@ -10,7 +10,7 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-if (originsData.length) {
+if (Array.isArray(originsData)) {
   corsOptions.origin = (origin: string, callback: any) => {
     if (originsData.includes(origin)) {
       callback(null, true);

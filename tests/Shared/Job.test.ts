@@ -1,8 +1,9 @@
-import { Job } from "../../src/Shared/job";
-import { IProgress, JobStatus, JobWork } from "../../src/Shared/jobInterfaces";
+import { Job } from "../../src/Shared/Job";
+import { IProgress, JobStatus, IJobWork } from "../../src/Shared/JobInterfaces";
 
-class MockJobWork extends JobWork {
-  public doWork = jest.fn();
+class MockJobWork implements IJobWork {
+  doWork = jest.fn();
+  stop = jest.fn().mockResolvedValue(undefined);
 }
 
 describe("Job.ts", () => {
@@ -13,7 +14,7 @@ describe("Job.ts", () => {
 
     // Act
     const job = new Job(testId, mockJobWork);
-    const jobStatus = job.status;
+    const jobStatus = job.status();
 
     // Assert
     expect(jobStatus.id).toEqual(testId);
@@ -28,7 +29,7 @@ describe("Job.ts", () => {
     // Act
     const job = new Job(testId, mockJobWork);
     job.start({});
-    const jobStatus = job.status;
+    const jobStatus = job.status();
 
     // Assert
     expect(mockJobWork.doWork).toHaveBeenCalled();
@@ -49,13 +50,13 @@ describe("Job.ts", () => {
     const job = new Job(testId, mockJobWork);
     job.start({});
     job.complete(testResult);
-    const jobStatus = job.status;
+    const jobStatus = job.status();
 
     // Assert
     expect(jobStatus.endTime).not.toEqual(0);
     expect(jobStatus.status).toEqual(JobStatus.Complete);
     expect(jobStatus.result).toEqual(testResult);
-    expect(job.result).toEqual(testResult);
+    expect(job.result()).toEqual(testResult);
   });
 
   test("fault() should set state to faulted and set error message", () => {
@@ -68,7 +69,7 @@ describe("Job.ts", () => {
     const job = new Job(testId, mockJobWork);
     job.start({});
     job.fault(testFault);
-    const jobStatus = job.status;
+    const jobStatus = job.status();
 
     // Assert
     expect(jobStatus.endTime).not.toEqual(0);
@@ -86,7 +87,7 @@ describe("Job.ts", () => {
     const job = new Job(testId, mockJobWork);
     job.start({});
     job.fault(testFault);
-    const jobStatus = job.status;
+    const jobStatus = job.status();
 
     // Assert
     expect(jobStatus.progress.message).toEqual(testFault.message);
@@ -105,8 +106,8 @@ describe("Job.ts", () => {
     // Act
     const job = new Job(testId, mockJobWork);
     job.start({});
-    job.progress = testProgress;
-    const jobStatus = job.status;
+    job.progress(testProgress);
+    const jobStatus = job.status();
 
     // Assert
     expect(jobStatus.progress).toEqual(testProgress);

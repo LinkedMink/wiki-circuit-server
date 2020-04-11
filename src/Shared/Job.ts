@@ -1,16 +1,25 @@
-import { logger } from "../logger";
-import { IProgress, JobStatus, JobWork } from "./jobInterfaces";
+import { Logger } from "../Logger";
+import { IProgress, JobStatus, IJobWork, IJob, ProgressHandler } from "./JobInterfaces";
+import { config, ConfigKey } from "../Config";
 
-export class Job {
-  set progress(value: IProgress) {
+const progressReportThreshold = config.getNumber(ConfigKey.JobProgressReportThreshold);
+
+export class Job implements IJob {
+  private static readonly logger = Logger.get('Job');
+  private lastProgressReport = 0;
+
+  progress(value: IProgress) {
     this.progressState = value;
+    if (this.lastProgressReport + progressReportThreshold > value.completed) {
+      this.reportProgress();
+    }
   }
 
-  get result(): object | undefined {
+  result(): object | null {
     return this.resultObject;
   }
 
-  get status() {
+  status() {
     return {
       status: this.jobStatus,
       id: this.id,
@@ -31,10 +40,12 @@ export class Job {
     message: "",
     data: {},
   };
-  private resultObject?: object;
+  private resultObject: object | null = null;
+  
   constructor(
-    private id: string,
-    private work: JobWork) {}
+    private readonly id: string,
+    private readonly work: IJobWork,
+    private readonly progressListener?: ProgressHandler) {}
 
   public start = (params: any) => {
     this.jobStatus = JobStatus.Running;
@@ -42,7 +53,11 @@ export class Job {
 
     this.work.doWork(this, params);
 
-    logger.info(`Started: ${this.id} @ ${this.startTime}`);
+    Job.logger.info(`Started: ${this.id} @ ${this.startTime}`);
+  }
+
+  public stop = (): Promise<void> => {
+    return this.work.stop();
   }
 
   public complete = (result: object) => {
@@ -55,12 +70,12 @@ export class Job {
   public fault = (error?: Error | string) => {
     if (typeof error === "string") {
       this.progressState.message = error;
-      logger.error(error);
+      Job.logger.error(error);
     } else if (error instanceof Error) {
       this.progressState.message = error.message;
-      logger.error(error.message);
+      Job.logger.error(error.message);
       if (error.stack) {
-        logger.error(error.stack);
+        Job.logger.error(error.stack);
       }
     }
 
@@ -72,6 +87,14 @@ export class Job {
     this.endTime = Date.now();
     this.runTime = this.endTime - this.startTime;
 
-    logger.info(`Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`);
+    Job.logger.info(`Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`);
+    this.reportProgress();
+  }
+
+  private reportProgress = () => {
+    if (this.progressListener !== undefined) {
+      this.progressListener(this);
+      this.lastProgressReport = this.progressState.completed;
+    }
   }
 }

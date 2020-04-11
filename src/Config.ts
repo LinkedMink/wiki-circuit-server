@@ -2,7 +2,8 @@ import fs from "fs";
 
 export enum Environment {
   Local = "local",
-  Test = "test",
+  UnitTest = "unitTest",
+  Development = "development",
   Production = "production",
 }
 
@@ -13,8 +14,12 @@ export enum ConfigKey {
   LogLevel = "LOG_LEVEL",
   JobMaxDepth = "JOB_MAX_DEPTH",
   JobMaxParallelDownloads = "JOB_MAX_PARALLEL_DOWNLOADS",
+  JobProgressReportThreshold = "JOB_PROGRESS_REPORT_THRESHOLD",
   JobCacheKeepMinutes = "JOB_CACHE_KEEP_MINUTES",
   JobCacheMaxEntries = "JOB_CACHE_MAX_ENTRIES",
+  RedisMode = "REDIS_MODE",
+  RedisHosts = "REDIS_HOSTS",
+  RedisKeyPrefix = "REDIS_KEY_PREFIX",
 }
 
 const configDefaultMap: Map<ConfigKey, string | undefined> = new Map([
@@ -22,29 +27,39 @@ const configDefaultMap: Map<ConfigKey, string | undefined> = new Map([
   [ConfigKey.ListenPort, "8080"],
   [ConfigKey.LogFile, "combined.log"],
   [ConfigKey.LogLevel, "info"],
-
   [ConfigKey.JobMaxDepth, "3"],
   [ConfigKey.JobMaxParallelDownloads, "10"],
-  [ConfigKey.JobCacheKeepMinutes, "360"],
+  [ConfigKey.JobProgressReportThreshold, "0.05"],
+  [ConfigKey.JobCacheKeepMinutes, "120"],
   [ConfigKey.JobCacheMaxEntries, "30"],
+  [ConfigKey.RedisMode, "Single"],
+  [ConfigKey.RedisHosts, JSON.stringify({host: "localhost", port: 6379})],
+  [ConfigKey.RedisKeyPrefix, "wiki-circuit"],
 ]);
 
 export class EnvironmentalConfig {
   private fileBuffers: Map<ConfigKey, Buffer> = new Map();
   private jsonObjects: Map<ConfigKey, { [key: string]: any }> = new Map();
-  private isEnvironmentLocalValue: boolean =
-    !process.env.NODE_ENV || process.env.NODE_ENV === Environment.Local;
   private packageJsonValue: { [key: string]: any };
 
   constructor() {
-      // const filePath = isEnvironmentLocal ? "../package.json" : "./package.json";
+    // const filePath = isEnvironmentLocal ? "../package.json" : "./package.json";
     const filePath = "./package.json";
     const data = fs.readFileSync(filePath, "utf8");
     this.packageJsonValue = JSON.parse(data);
   }
 
   public get isEnvironmentLocal(): boolean {
-    return this.isEnvironmentLocalValue;
+    return !process.env.NODE_ENV || process.env.NODE_ENV === Environment.Local;
+  }
+
+  public get isEnvironmentUnitTest(): boolean {
+    return process.env.NODE_ENV === Environment.UnitTest;
+  }
+
+  public get isEnvironmentContainerized(): boolean {
+    return process.env.IS_CONTAINER_ENV !== undefined && 
+      process.env.IS_CONTAINER_ENV.trim().toLowerCase() === 'true';
   }
 
   public get packageJson(): { [key: string]: any } {
@@ -97,7 +112,7 @@ export class EnvironmentalConfig {
       return buffer;
     }
 
-    if (process.env.NODE_ENV === Environment.Test) {
+    if (process.env.NODE_ENV === Environment.UnitTest) {
       return Buffer.alloc(0);
     }
 

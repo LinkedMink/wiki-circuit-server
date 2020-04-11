@@ -1,41 +1,10 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: wiki-circuit-client
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: wiki-circuit-client
-  template:
-    metadata:
-      labels:
-        app: wiki-circuit-client
-    spec:
-      nodeSelector:
-        "beta.kubernetes.io/os": linux
-      containers:
-      - name: wiki-circuit-client
-        image: linkedmink/wiki-circuit-client
-        ports:
-        - containerPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: wiki-circuit-client
-spec:
-  ports:
-  - port: 80
-  selector:
-    app: wiki-circuit-client
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wiki-circuit-server
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: wiki-circuit-server
@@ -45,7 +14,7 @@ spec:
         app: wiki-circuit-server
     spec:
       nodeSelector:
-        "beta.kubernetes.io/os": linux
+        "kubernetes.io/os": linux
       containers:
       - name: wiki-circuit-server
         image: linkedmink/wiki-circuit-server
@@ -53,7 +22,16 @@ spec:
         - containerPort: 8080
         env:
         - name: ALLOWED_ORIGINS
-          value: '["https://wiki-circuit.apps.linkedmink.space","http://wiki-circuit.apps.linkedmink.space"]'
+          value: '["https://wiki-circuit.linkedmink.space","http://wiki-circuit.linkedmink.space"]'
+        - name: JOB_MAX_DEPTH
+          value: "2"
+        - name: JOB_MAX_PARALLEL_DOWNLOADS
+          value: "8"
+        - name: REDIS_MODE
+          value: "Sentinal"
+        - name: REDIS_HOSTS
+          value: '[{ "host": "my-redis-sentinal.local", "port": 26379 }]'
+
 ---
 apiVersion: v1
 kind: Service

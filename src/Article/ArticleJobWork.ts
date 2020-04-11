@@ -1,11 +1,11 @@
 import fetch from "node-fetch";
 
-import { config, ConfigKey } from "../config";
-import { mapToObject } from "../Shared/collectionHelpers";
-import { Job } from "../Shared/job";
-import { JobWork } from "../Shared/jobInterfaces";
-import { IArticleResult } from "./articleResult";
-import { findLinksInArticle } from "./findLinksInArticle";
+import { config, ConfigKey } from "../Config";
+import { mapToObject } from "../Shared/CollectionHelpers";
+import { Job } from "../Shared/Job";
+import { IJobWork } from "../Shared/JobInterfaces";
+import { IArticleResult } from "./ArticleResult";
+import { findLinksInArticle } from "./FindLinksInArticle";
 
 const WIKIPEDIA_ARTICLE_BASE_URL = "https://en.wikipedia.org/wiki/";
 const maxDepth = config.getNumber(ConfigKey.JobMaxDepth);
@@ -17,7 +17,7 @@ interface ILinkTotals {
   downloaded: number;
 }
 
-export class ArticleJobWork extends JobWork {
+export class ArticleJobWork implements IJobWork {
 
   private job?: Job;
   private articleName = "";
@@ -26,9 +26,9 @@ export class ArticleJobWork extends JobWork {
   private queue: Map<string, number> = new Map();
   private downloading: Set<string> = new Set();
   private activePromises: Set<Promise<void>> = new Set();
+  private isStopping = false;
   private totals: Map<number, ILinkTotals>;
   constructor() {
-    super();
     const totals = new Map([
       [0, { links: 1, queued: 1, downloaded: 0 }],
       [1, { links: 1, queued: 1, downloaded: 0 }],
@@ -43,6 +43,11 @@ export class ArticleJobWork extends JobWork {
     this.job = job;
     this.articleName = params.id;
     this.getArticleHtml(this.articleName, 1);
+  }
+
+  public stop = (): Promise<void> => {
+    this.finishError();
+    return Promise.all(this.activePromises).then(() => undefined);
   }
 
   private getArticleHtml = (articleName: string, depth: number) => {
@@ -120,11 +125,11 @@ export class ArticleJobWork extends JobWork {
     /* TODO Predicted work should expand exponentially with depth not linearly */
     const total0 = this.totals.get(0);
     if (this.job && total0) {
-      this.job.progress = {
+      this.job.progress({
         completed: total0.downloaded / total0.queued,
         message: "",
         data: mapToObject(this.totals),
-      };
+      });
     }
   }
 
