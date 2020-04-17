@@ -12,6 +12,7 @@ import { ArticleJobWork } from "../Article/ArticleJobWork";
 import { getJobRouter } from "./GetJobRouter";
 import { IJob, JobStatus } from "../Shared/JobInterfaces";
 import { createRedisStorageProvider } from "../CreateRedis";
+import { Router } from "express";
 
 const memoryStorageProvider = new MemoryStorageProvider<string, IJob>();
 const redisStorageProvider = createRedisStorageProvider();
@@ -30,7 +31,7 @@ const agingCacheOptions = {
 
 const jobCache = createAgingCache(storageHierarchy, agingCacheOptions);
 
-export const jobShutdownHandler = async () => {
+export const jobShutdownHandler = async (): Promise<number> => {
   const keys = await memoryStorageProvider.keys();
   
   const stoppingJobs: Promise<void>[] = [];
@@ -52,6 +53,6 @@ export const jobShutdownHandler = async () => {
   return Promise.all(stoppingJobs).then(() => 0);
 }
 
-export const getArticleJobRouter = () => {
+export const getArticleJobRouter = (): Router => {
   return getJobRouter(jobCache, () => new ArticleJobWork());
 }

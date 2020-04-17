@@ -15,18 +15,24 @@ export enum RedisMode {
   Cluster = "Cluster"
 }
 
+interface IHostPort {
+  host: string; 
+  port: number;
+}
+
 interface ISentinelGroup {
-  sentinels: [{ host: string; port: number }];
+  sentinels: IHostPort[];
   name: string;
 }
 
-const createRedisClient = () => {
+const createRedisClient = (): Redis.Redis => {
   const hosts = config.getJson(ConfigKey.RedisHosts);
   const stringMode = config.getString(ConfigKey.RedisMode);
   const mode = stringMode as RedisMode;
 
   if (mode === RedisMode.Single) {
-    return new Redis(hosts.port, hosts.host);
+    const hostPort = hosts as IHostPort;
+    return new Redis(hostPort.port, hostPort.host);
   } else if (mode === RedisMode.Sentinel) {
     const group = hosts as ISentinelGroup
     return new Redis(group); 
@@ -38,7 +44,7 @@ const createRedisClient = () => {
   }
 }
 
-export const createRedisStorageProvider = () => {
+export const createRedisStorageProvider = (): RedisStorageProvider<string, IJob> => {
   const redisClient = createRedisClient();
   const redisChannel = createRedisClient();
   const redisOptions = {

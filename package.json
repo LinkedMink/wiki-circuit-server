@@ -1,6 +1,6 @@
 {
   "name": "wiki-circuit-server",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "The server component of the Wiki Circuit project",
   "license": "MIT",
   "author": {

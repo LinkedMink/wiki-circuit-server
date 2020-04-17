@@ -37,13 +37,20 @@ const configDefaultMap: Map<ConfigKey, string | undefined> = new Map([
   [ConfigKey.RedisKeyPrefix, "wiki-circuit"],
 ]);
 
+export interface IPackageJson {
+  name: string;
+  version: string;
+  description: string;
+  [property: string]: unknown;
+}
+
 export class EnvironmentalConfig {
   private fileBuffers: Map<ConfigKey, Buffer> = new Map();
-  private jsonObjects: Map<ConfigKey, { [key: string]: any }> = new Map();
-  private packageJsonValue: { [key: string]: any };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private jsonObjects: Map<ConfigKey, any> = new Map();
+  private packageJsonValue: IPackageJson;
 
   constructor() {
-    // const filePath = isEnvironmentLocal ? "../package.json" : "./package.json";
     const filePath = "./package.json";
     const data = fs.readFileSync(filePath, "utf8");
     this.packageJsonValue = JSON.parse(data);
@@ -62,25 +69,25 @@ export class EnvironmentalConfig {
       process.env.IS_CONTAINER_ENV.trim().toLowerCase() === 'true';
   }
 
-  public get packageJson(): { [key: string]: any } {
+  public get packageJson(): IPackageJson {
     return this.packageJsonValue;
   }
 
-  public getString = (key: ConfigKey) => {
+  public getString = (key: ConfigKey): string => {
     return this.getConfigValue(key);
   }
 
-  public getNumber = (key: ConfigKey) => {
+  public getNumber = (key: ConfigKey): number => {
     const value = this.getConfigValue(key);
     return Number(value);
   }
 
-  public getBool = (key: ConfigKey) => {
+  public getBool = (key: ConfigKey): boolean => {
     const value = this.getConfigValue(key);
     return value.trim().toLowerCase() === "true";
   }
 
-  public getJsonOrString = (key: ConfigKey) => {
+  public getJsonOrString = <T>(key: ConfigKey): string | T => {
     const json = this.jsonObjects.get(key);
     if (json) {
       return json;
@@ -94,19 +101,19 @@ export class EnvironmentalConfig {
     return value;
   }
 
-  public getJson = (key: ConfigKey) => {
+  public getJson = <T>(key: ConfigKey): T => {
     const json = this.jsonObjects.get(key);
     if (json) {
       return json;
     }
 
     const value = this.getConfigValue(key);
-    const parsed = JSON.parse(value) as { [key: string]: any };
+    const parsed = JSON.parse(value) as T;
     this.jsonObjects.set(key, parsed);
     return parsed;
   }
 
-  public getFileBuffer = (key: ConfigKey) => {
+  public getFileBuffer = (key: ConfigKey): Buffer => {
     const buffer = this.fileBuffers.get(key);
     if (buffer) {
       return buffer;

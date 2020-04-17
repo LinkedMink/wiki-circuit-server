@@ -17,6 +17,10 @@ interface ILinkTotals {
   downloaded: number;
 }
 
+interface IIdParams {
+  id: string;
+}
+
 export class ArticleJobWork implements IJobWork {
 
   private job?: Job;
@@ -39,9 +43,9 @@ export class ArticleJobWork implements IJobWork {
     this.totals = totals;
   }
 
-  public doWork = (job: Job, params: any): void => {
+  public doWork = (job: Job, params: unknown): void => {
     this.job = job;
-    this.articleName = params.id;
+    this.articleName = (params as IIdParams).id;
     this.getArticleHtml(this.articleName, 1);
   }
 
@@ -50,7 +54,7 @@ export class ArticleJobWork implements IJobWork {
     return Promise.all(this.activePromises).then(() => undefined);
   }
 
-  private getArticleHtml = (articleName: string, depth: number) => {
+  private getArticleHtml = (articleName: string, depth: number): void => {
     // eslint-disable-next-line prefer-const
     let downloadPromise: Promise<void>;
 
@@ -62,7 +66,7 @@ export class ArticleJobWork implements IJobWork {
     };
     this.result.set(articleName, articleData);
 
-    const textHandler = (text: string) => {
+    const textHandler = (text: string): void => {
       const links = findLinksInArticle(text);
       articleData.linkedArticles = links;
 
@@ -121,7 +125,7 @@ export class ArticleJobWork implements IJobWork {
     this.activePromises.add(downloadPromise);
   }
 
-  private setProgress = () => {
+  private setProgress = (): void => {
     /* TODO Predicted work should expand exponentially with depth not linearly */
     const total0 = this.totals.get(0);
     if (this.job && total0) {
@@ -133,7 +137,7 @@ export class ArticleJobWork implements IJobWork {
     }
   }
 
-  private addLinkedArticles = (links: { [s: string]: number }, depth: number) => {
+  private addLinkedArticles = (links: { [s: string]: number }, depth: number): void => {
     const total0 = this.totals.get(0);
     const totalDepth = this.totals.get(depth);
 
@@ -160,7 +164,7 @@ export class ArticleJobWork implements IJobWork {
     }
   }
 
-  private getSortedResult = () => {
+  private getSortedResult = (): IArticleResult[] => {
     const resultArray = [];
     for (const result of this.result) {
       resultArray.push(result[1]);
@@ -173,7 +177,7 @@ export class ArticleJobWork implements IJobWork {
     return sortedResult;
   }
 
-  private finishSuccess = () => {
+  private finishSuccess = (): void => {
     const sortedResult = this.getSortedResult();
     if (this.job) {
       this.job.complete(sortedResult);
@@ -181,7 +185,7 @@ export class ArticleJobWork implements IJobWork {
     this.isFinished = true;
   }
 
-  private finishError = (error?: Error | string) => {
+  private finishError = (error?: Error | string): void => {
     if (this.job) {
       this.job.fault(error);
     }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import express from "express";
 import { Router } from "express";
 import expressWs from "express-ws";
@@ -28,7 +29,7 @@ class MockAgingCache implements IAgingCache<string, IJob> {
 describe("GetJobRouter.ts", () => {
   let router: Router | null;
 
-  const getMockRequestResponse = () => {
+  const getMockRequestResponse = (): any => {
     const mockResponse: any = {
       send: jest.fn(),
       status: jest.fn().mockImplementation(() => mockResponse),
@@ -49,7 +50,7 @@ describe("GetJobRouter.ts", () => {
     };
   };
 
-  const getRouteHandler = (path: string, method: string) => {
+  const getRouteHandler = (path: string, method: string): any => {
     if (router === null) {
       router = getJobRouter(new MockAgingCache(), () => new MockJobWork());
     }

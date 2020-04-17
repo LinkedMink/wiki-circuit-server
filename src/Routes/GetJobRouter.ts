@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, Router } from "express";
 import { IAgingCache, AgingCacheWriteStatus } from "@linkedmink/multilevel-aging-cache";
 import WebSocket from "ws";
 
@@ -8,50 +8,49 @@ import { getResponseFailed, getResponseSuccess } from "../Models/IResponseData";
 import { IJobIdParams } from "../Models/IJobParameters";
 //import { logger } from "../Logger";
 
-export const getJobRouter = (jobCache: IAgingCache<string, IJob>, createWork: () => IJobWork) => {
+export const getJobRouter = (jobCache: IAgingCache<string, IJob>, createWork: () => IJobWork): Router => {
   const router = express.Router();
 
-  const jobProgressUpdater = (job: IJob) => {
+  const jobProgressUpdater = (job: IJob): void => {
     const id = job.status().id;
     jobCache.set(id, job, true);
   }
 
-  const startJob = async (id: string, req: Request, res: Response) => {
+  const startJob = async (id: string, req: Request, res: Response): Promise<void> => {
     const newJob = new Job(id, createWork(), jobProgressUpdater);
     newJob.start(req.body);
 
     const status = await jobCache.set(id, newJob);
     if (status === AgingCacheWriteStatus.Success) {
-      return res.send(
-        getResponseSuccess(`Job started: ${id}`));
+      res.send(getResponseSuccess(`Job started: ${id}`));
+      return;
     } 
 
     res.status(500)
-    return res.send(
-      getResponseFailed(`Failed to store job: ${id}`));
+    res.send(getResponseFailed(`Failed to store job: ${id}`));
   }
 
-  const getCachedJobIdsHandler = async (req: Request, res: Response) => {
+  const getCachedJobIdsHandler = async (req: Request, res: Response): Promise<void> => {
     const keys = await jobCache.keys();
 
     const response = getResponseSuccess(keys);
-    return res.send(response);
+    res.send(response);
   };
 
-  const getJobByIdHandler = async (req: Request, res: Response) => {
+  const getJobByIdHandler = async (req: Request, res: Response): Promise<void> => {
     const id = req.params.id;
     if (!id) {
       res.status(400);
-      return res.send(
-        getResponseFailed("id: required"));
+      res.send(getResponseFailed("id: required"));
+      return;
     }
 
     const job = await jobCache.get(id);
 
     if (job === null) {
       res.status(404);
-      return res.send(
-        getResponseFailed(`No job exist for the specified ID: ${id}`));
+      res.send(getResponseFailed(`No job exist for the specified ID: ${id}`));
+      return
     }
 
     const data = job.status();
@@ -60,17 +59,17 @@ export const getJobRouter = (jobCache: IAgingCache<string, IJob>, createWork: ()
       data.result = result;
     }
 
-    return res.send(getResponseSuccess(data));
+    res.send(getResponseSuccess(data));
   };
 
-  const postJobByIdHandler = async (req: Request, res: Response) => {
+  const postJobByIdHandler = async (req: Request, res: Response): Promise<void> => {
     const id = req.body.id;
     const refresh = req.body.refresh;
 
     if (!id) {
       res.status(400);
-      return res.send(
-        getResponseFailed("id: required"));
+      res.send(getResponseFailed("id: required"));
+      return;
     }
 
     const job = await jobCache.get(id);
@@ -81,14 +80,14 @@ export const getJobRouter = (jobCache: IAgingCache<string, IJob>, createWork: ()
     if (!refresh) {
       if (job.status().status === JobStatus.Complete) {
         res.status(400);
-        return res.send(
-          getResponseFailed(`Job already completed and cached: ${id}`));
+        res.send(getResponseFailed(`Job already completed and cached: ${id}`));
+        return;
       }
   
       if (job.status().status !== JobStatus.Faulted) {
         res.status(400);
-        return res.send(
-          getResponseFailed(`Job already started: ${id}`));
+        res.send(getResponseFailed(`Job already started: ${id}`));
+        return
       }
     }
 
@@ -98,11 +97,11 @@ export const getJobRouter = (jobCache: IAgingCache<string, IJob>, createWork: ()
     }
 
     res.status(500);
-    return res.send(
+    res.send(
       getResponseFailed(`Error removing stale job from cache: ${id}`));
   };
 
-  const webSocketConnectedHandler = (ws: WebSocket) => {
+  const webSocketConnectedHandler = (ws: WebSocket): void => {
     ws.on("message", (message) => {
       let data: IJobIdParams;
       try {

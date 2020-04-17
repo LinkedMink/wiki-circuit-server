@@ -40,7 +40,7 @@ export const pingRouter = Router();
  *             schema:
  *               $ref: '#/definitions/PingSuccessResponse'
  */
-pingRouter.get("/", (req: Request<ParamsDictionary, any, any>, res: Response) => {
+pingRouter.get("/", (req: Request<ParamsDictionary>, res: Response) => {
   const pingResponse = getResponseObject();
 
   if (process.env.NODE_ENV === Environment.Production) {

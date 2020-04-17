@@ -5,8 +5,8 @@ const logger = Logger.get("Cleanup");
 export type ExitFunction = () => number | Promise<number>
 const NoOpHandler: ExitFunction = () => 0
 
-export const executeOnExit = (handler = NoOpHandler) => {
-  const wrappedHandler = () => {
+export const executeOnExit = (handler = NoOpHandler): void => {
+  const wrappedHandler = (): void => {
     process.stdin.resume();
     const handlerResult = handler();
     if (handlerResult instanceof Promise) {

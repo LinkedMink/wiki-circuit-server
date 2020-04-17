@@ -28,7 +28,7 @@ export interface IJob {
   result(): object | null ;
   status(): IJobStatus;
 
-  start(params: any): void;
+  start(params: unknown): void;
   stop(): Promise<void>;
   complete(result: object): void;
   fault(error?: Error | string): void;
@@ -51,7 +51,7 @@ export class JobData implements IJob {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  start(params: any): void {
+  start(params: unknown): void {
     throw new Error("Method not implemented.");
   }
 
@@ -71,6 +71,6 @@ export class JobData implements IJob {
 }
 
 export interface IJobWork {
-  doWork(job: IJob, params: any): void;
+  doWork(job: IJob, params: unknown): void;
   stop(): Promise<void>;
 }

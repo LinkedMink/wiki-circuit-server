@@ -17,8 +17,6 @@ module.exports = {
             { 
                 "prefixWithI": "always" 
             }
-        ],
-        "@typescript-eslint/explicit-function-return-type": "off",
-        "@typescript-eslint/no-explicit-any": "off"
+        ]
     }
 };

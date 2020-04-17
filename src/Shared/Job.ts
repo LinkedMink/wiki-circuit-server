@@ -1,5 +1,5 @@
 import { Logger } from "../Logger";
-import { IProgress, JobStatus, IJobWork, IJob, ProgressHandler } from "./JobInterfaces";
+import { IProgress, JobStatus, IJobWork, IJob, ProgressHandler, IJobStatus } from "./JobInterfaces";
 import { config, ConfigKey } from "../Config";
 
 const progressReportThreshold = config.getNumber(ConfigKey.JobProgressReportThreshold);
@@ -8,7 +8,7 @@ export class Job implements IJob {
   private static readonly logger = Logger.get('Job');
   private lastProgressReport = 0;
 
-  progress(value: IProgress) {
+  progress(value: IProgress): void {
     this.progressState = value;
     if (this.lastProgressReport + progressReportThreshold > value.completed) {
       this.reportProgress();
@@ -19,7 +19,7 @@ export class Job implements IJob {
     return this.resultObject;
   }
 
-  status() {
+  status(): IJobStatus {
     return {
       status: this.jobStatus,
       id: this.id,
@@ -47,7 +47,7 @@ export class Job implements IJob {
     private readonly work: IJobWork,
     private readonly progressListener?: ProgressHandler) {}
 
-  public start = (params: any) => {
+  public start = (params: unknown): void => {
     this.jobStatus = JobStatus.Running;
     this.startTime = Date.now();
 
@@ -60,14 +60,14 @@ export class Job implements IJob {
     return this.work.stop();
   }
 
-  public complete = (result: object) => {
+  public complete = (result: object): void => {
     this.resultObject = result;
 
     this.jobStatus = JobStatus.Complete;
     this.setCompletedIn();
   }
 
-  public fault = (error?: Error | string) => {
+  public fault = (error?: Error | string): void => {
     if (typeof error === "string") {
       this.progressState.message = error;
       Job.logger.error(error);
@@ -83,7 +83,7 @@ export class Job implements IJob {
     this.setCompletedIn();
   }
 
-  private setCompletedIn = () => {
+  private setCompletedIn = (): void => {
     this.endTime = Date.now();
     this.runTime = this.endTime - this.startTime;
 
@@ -91,7 +91,7 @@ export class Job implements IJob {
     this.reportProgress();
   }
 
-  private reportProgress = () => {
+  private reportProgress = (): void => {
     if (this.progressListener !== undefined) {
       this.progressListener(this);
       this.lastProgressReport = this.progressState.completed;
