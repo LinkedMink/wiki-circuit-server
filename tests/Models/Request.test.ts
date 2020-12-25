@@ -1,6 +1,10 @@
-import { getResponseObject, ResponseStatus } from "../../src/Models/IResponseData";
+import path from "path";
+import {
+  getResponseObject,
+  ResponseStatus,
+} from "../../src/Models/IResponseData";
 
-describe("IResponseData.ts", () => {
+describe(path.basename(__filename, ".test.ts"), () => {
   test("getMessageObject should return standard empty response interface", () => {
     // Act
     const response = getResponseObject();

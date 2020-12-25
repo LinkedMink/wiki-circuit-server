@@ -5,7 +5,7 @@ import { ErrorRequestHandler, NextFunction } from "express";
 import { ParamsDictionary, Request, Response } from "express-serve-static-core";
 import { isError } from "./Shared/Core";
 
-const logger = Logger.get("Error");
+const logger = Logger.get(Error.name);
 
 export class UserInputError extends Error {
   private inputErrorValue: boolean;
@@ -24,8 +24,12 @@ export class UserInputError extends Error {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const errorMiddleware: ErrorRequestHandler = (error: unknown, req: Request<ParamsDictionary>, res: Response, next: NextFunction) => {
+export const errorMiddleware: ErrorRequestHandler = (
+  error: unknown,
+  req: Request<ParamsDictionary>,
+  res: Response,
+  next: NextFunction
+) => {
   if (isError(error)) {
     logger.error(error.message);
     if (error.stack) {
@@ -39,7 +43,6 @@ export const errorMiddleware: ErrorRequestHandler = (error: unknown, req: Reques
       res.status(401);
       return res.send(getResponseObject(ResponseStatus.Failed, error.message));
     }
-
   } else if (typeof error === "string" || error instanceof String) {
     logger.error(error);
   }

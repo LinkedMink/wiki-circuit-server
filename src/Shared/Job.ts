@@ -1,11 +1,20 @@
 import { Logger } from "../Logger";
-import { IProgress, JobStatus, IJobWork, IJob, ProgressHandler, IJobStatus } from "./JobInterfaces";
+import {
+  IProgress,
+  JobStatus,
+  IJobWork,
+  IJob,
+  ProgressHandler,
+  IJobStatus,
+} from "./JobInterfaces";
 import { config, ConfigKey } from "../Config";
 
-const progressReportThreshold = config.getNumber(ConfigKey.JobProgressReportThreshold);
+const progressReportThreshold = config.getNumber(
+  ConfigKey.JobProgressReportThreshold
+);
 
 export class Job implements IJob {
-  private static readonly logger = Logger.get('Job');
+  private static readonly logger = Logger.get(Job.name);
   private lastProgressReport = 0;
 
   progress(value: IProgress): void {
@@ -15,7 +24,7 @@ export class Job implements IJob {
     }
   }
 
-  result(): object | null {
+  result(): unknown | null {
     return this.resultObject;
   }
 
@@ -40,12 +49,13 @@ export class Job implements IJob {
     message: "",
     data: {},
   };
-  private resultObject: object | null = null;
-  
+  private resultObject: unknown | null = null;
+
   constructor(
     private readonly id: string,
     private readonly work: IJobWork,
-    private readonly progressListener?: ProgressHandler) {}
+    private readonly progressListener?: ProgressHandler
+  ) {}
 
   public start = (params: unknown): void => {
     this.jobStatus = JobStatus.Running;
@@ -54,18 +64,18 @@ export class Job implements IJob {
     this.work.doWork(this, params);
 
     Job.logger.info(`Started: ${this.id} @ ${this.startTime}`);
-  }
+  };
 
   public stop = (): Promise<void> => {
     return this.work.stop();
-  }
+  };
 
-  public complete = (result: object): void => {
+  public complete = (result: unknown): void => {
     this.resultObject = result;
 
     this.jobStatus = JobStatus.Complete;
     this.setCompletedIn();
-  }
+  };
 
   public fault = (error?: Error | string): void => {
     if (typeof error === "string") {
@@ -81,20 +91,22 @@ export class Job implements IJob {
 
     this.jobStatus = JobStatus.Faulted;
     this.setCompletedIn();
-  }
+  };
 
   private setCompletedIn = (): void => {
     this.endTime = Date.now();
     this.runTime = this.endTime - this.startTime;
 
-    Job.logger.info(`Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`);
+    Job.logger.info(
+      `Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`
+    );
     this.reportProgress();
-  }
+  };
 
   private reportProgress = (): void => {
     if (this.progressListener !== undefined) {
       this.progressListener(this);
       this.lastProgressReport = this.progressState.completed;
     }
-  }
+  };
 }

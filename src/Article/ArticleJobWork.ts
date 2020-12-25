@@ -9,7 +9,9 @@ import { findLinksInArticle } from "./FindLinksInArticle";
 
 const WIKIPEDIA_ARTICLE_BASE_URL = "https://en.wikipedia.org/wiki/";
 const maxDepth = config.getNumber(ConfigKey.JobMaxDepth);
-const maxParallelDownloads = config.getNumber(ConfigKey.JobMaxParallelDownloads);
+const maxParallelDownloads = config.getNumber(
+  ConfigKey.JobMaxParallelDownloads
+);
 
 interface ILinkTotals {
   links: number;
@@ -22,16 +24,15 @@ interface IIdParams {
 }
 
 export class ArticleJobWork implements IJobWork {
-
   private job?: Job;
   private articleName = "";
   private isFinished = false;
-  private result: Map<string, IArticleResult> = new Map();
-  private queue: Map<string, number> = new Map();
-  private downloading: Set<string> = new Set();
-  private activePromises: Set<Promise<void>> = new Set();
-  private isStopping = false;
+  private result = new Map<string, IArticleResult>();
+  private queue = new Map<string, number>();
+  private downloading = new Set<string>();
+  private activePromises = new Set<Promise<void>>();
   private totals: Map<number, ILinkTotals>;
+
   constructor() {
     const totals = new Map([
       [0, { links: 1, queued: 1, downloaded: 0 }],
@@ -47,12 +48,12 @@ export class ArticleJobWork implements IJobWork {
     this.job = job;
     this.articleName = (params as IIdParams).id;
     this.getArticleHtml(this.articleName, 1);
-  }
+  };
 
   public stop = (): Promise<void> => {
     this.finishError();
     return Promise.all(this.activePromises).then(() => undefined);
-  }
+  };
 
   private getArticleHtml = (articleName: string, depth: number): void => {
     // eslint-disable-next-line prefer-const
@@ -99,31 +100,38 @@ export class ArticleJobWork implements IJobWork {
       }
 
       // If we have more to download dequeue the next article to download
-      while (this.queue.size > 0 && this.activePromises.size <= maxParallelDownloads) {
+      while (
+        this.queue.size > 0 &&
+        this.activePromises.size <= maxParallelDownloads
+      ) {
         const nextArticle = this.queue[Symbol.iterator]().next();
         if (nextArticle && nextArticle.value) {
-          this.queue.delete(nextArticle.value[0]);
-          this.getArticleHtml(nextArticle.value[0], nextArticle.value[1]);
+          const articleDepth = nextArticle.value as (string | number)[];
+          this.queue.delete(articleDepth[0] as string);
+          this.getArticleHtml(
+            articleDepth[0] as string,
+            articleDepth[1] as number
+          );
         }
       }
     };
 
     const url = WIKIPEDIA_ARTICLE_BASE_URL + articleName;
     downloadPromise = fetch(url, { method: "GET" })
-      .then((response) => {
+      .then(response => {
         if (!response.ok) {
-          this.finishError(`${response.status} ${response.statusText}: ${articleName}`);
+          this.finishError(
+            `${response.status} ${response.statusText}: ${articleName}`
+          );
           return;
         }
 
-        response.text()
-          .then(textHandler)
-          .catch(this.finishError);
+        response.text().then(textHandler).catch(this.finishError);
       })
       .catch(this.finishError);
 
     this.activePromises.add(downloadPromise);
-  }
+  };
 
   private setProgress = (): void => {
     /* TODO Predicted work should expand exponentially with depth not linearly */
@@ -135,9 +143,12 @@ export class ArticleJobWork implements IJobWork {
         data: mapToObject(this.totals),
       });
     }
-  }
+  };
 
-  private addLinkedArticles = (links: { [s: string]: number }, depth: number): void => {
+  private addLinkedArticles = (
+    links: { [s: string]: number },
+    depth: number
+  ): void => {
     const total0 = this.totals.get(0);
     const totalDepth = this.totals.get(depth);
 
@@ -162,7 +173,7 @@ export class ArticleJobWork implements IJobWork {
         resultLink.referenceCount++;
       }
     }
-  }
+  };
 
   private getSortedResult = (): IArticleResult[] => {
     const resultArray = [];
@@ -175,7 +186,7 @@ export class ArticleJobWork implements IJobWork {
     });
 
     return sortedResult;
-  }
+  };
 
   private finishSuccess = (): void => {
     const sortedResult = this.getSortedResult();
@@ -183,12 +194,12 @@ export class ArticleJobWork implements IJobWork {
       this.job.complete(sortedResult);
     }
     this.isFinished = true;
-  }
+  };
 
   private finishError = (error?: Error | string): void => {
     if (this.job) {
       this.job.fault(error);
     }
     this.isFinished = true;
-  }
+  };
 }

@@ -1,8 +1,8 @@
 import fs from "fs";
-
+import path from "path";
 import { findLinksInArticle } from "../../src/Article/FindLinksInArticle";
 
-describe("FindLinksInArticle.ts", () => {
+describe(path.basename(__filename, ".test.ts"), () => {
   test("should return no links if not an HTML page", () => {
     // Act
     const links = findLinksInArticle("");

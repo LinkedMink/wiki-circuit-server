@@ -1,9 +1,10 @@
+import path from "path";
 import { Logger } from "./Logger";
 
-const logger = Logger.get("Cleanup");
+const logger = Logger.get(path.basename(__filename));
 
-export type ExitFunction = () => number | Promise<number>
-const NoOpHandler: ExitFunction = () => 0
+export type ExitFunction = () => number | Promise<number>;
+const NoOpHandler: ExitFunction = () => 0;
 
 export const executeOnExit = (handler = NoOpHandler): void => {
   const wrappedHandler = (): void => {
@@ -12,26 +13,26 @@ export const executeOnExit = (handler = NoOpHandler): void => {
     if (handlerResult instanceof Promise) {
       handlerResult
         .then(result => process.exit(result))
-        .catch(() => process.exit(1))
+        .catch(() => process.exit(1));
     } else {
-      process.exit(handlerResult)
+      process.exit(handlerResult);
     }
-  }
+  };
 
-  process.on('exit', wrappedHandler);
+  process.on("exit", wrappedHandler);
 
   //do something when app is closing
-  process.on('exit', wrappedHandler);
+  process.on("exit", wrappedHandler);
 
   //catches ctrl+c event
-  process.on('SIGINT', wrappedHandler);
+  process.on("SIGINT", wrappedHandler);
 
   // catches "kill pid" (for example: nodemon restart)
-  process.on('SIGUSR1', wrappedHandler);
-  process.on('SIGUSR2', wrappedHandler);
+  process.on("SIGUSR1", wrappedHandler);
+  process.on("SIGUSR2", wrappedHandler);
 
-  process.on('uncaughtException', function(e) {
-    logger.error('Uncaught Exception...');
+  process.on("uncaughtException", function (e) {
+    logger.error("Uncaught Exception...");
     if (e.stack) {
       logger.error(e.stack);
     }

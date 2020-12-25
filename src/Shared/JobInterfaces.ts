@@ -8,10 +8,10 @@ export enum JobStatus {
 export interface IProgress {
   completed: number;
   message: string;
-  data: object;
+  data: Record<string, unknown>;
 }
 
-export type ProgressHandler = (job: IJob) => void
+export type ProgressHandler = (job: IJob) => void;
 
 export interface IJobStatus {
   status: JobStatus;
@@ -20,29 +20,28 @@ export interface IJobStatus {
   startTime: number;
   endTime: number;
   runTime: number;
-  result: object | null;
+  result: unknown | null;
 }
 
 export interface IJob {
   progress(value: IProgress): void;
-  result(): object | null ;
+  result(): unknown | null;
   status(): IJobStatus;
 
   start(params: unknown): void;
   stop(): Promise<void>;
-  complete(result: object): void;
+  complete(result: unknown): void;
   fault(error?: Error | string): void;
 }
 
 export class JobData implements IJob {
   constructor(private statusData: IJobStatus) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progress(value: IProgress): void {
     throw new Error("Method not implemented.");
   }
 
-  result(): object | null {
+  result(): unknown | null {
     return this.statusData.result;
   }
 
@@ -50,7 +49,6 @@ export class JobData implements IJob {
     return this.statusData;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   start(params: unknown): void {
     throw new Error("Method not implemented.");
   }
@@ -59,12 +57,10 @@ export class JobData implements IJob {
     throw new Error("Method not implemented.");
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  complete(result: object): void {
+  complete(result: Record<string, unknown>): void {
     throw new Error("Method not implemented.");
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fault(error?: string | Error | undefined): void {
     throw new Error("Method not implemented.");
   }

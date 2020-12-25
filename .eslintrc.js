@@ -1,22 +1,35 @@
 module.exports = {
-    "extends": [
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "prettier",
+    "prettier/@typescript-eslint",
+  ],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    project: "tsconfig.json",
+    sourceType: "module",
+  },
+  plugins: ["@typescript-eslint"],
+  rules: {
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        selector: "interface",
+        format: ["PascalCase"],
+        custom: {
+          regex: "^I[A-Z]",
+          match: true,
+        },
+      },
     ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "project": "tsconfig.json",
-        "sourceType": "module"
+    "@typescript-eslint/no-unused-vars": "off",
+  },
+  overrides: [
+    {
+      files: ["*.js"],
+      rules: {},
     },
-    "plugins": [
-        "@typescript-eslint"
-    ],
-    "rules": {
-        "@typescript-eslint/interface-name-prefix": [
-            "error",
-            { 
-                "prefixWithI": "always" 
-            }
-        ]
-    }
+  ],
 };

@@ -1,7 +1,7 @@
-import { 
-  RedisStorageProvider,
+import {
+  RedisPubSubStorageProvider,
   IRedisStorageProviderOptions,
-  StringSerializer
+  StringSerializer,
 } from "@linkedmink/multilevel-aging-cache";
 import Redis from "ioredis";
 
@@ -12,11 +12,11 @@ import { IJob } from "./Shared/JobInterfaces";
 export enum RedisMode {
   Single = "Single",
   Sentinel = "Sentinel",
-  Cluster = "Cluster"
+  Cluster = "Cluster",
 }
 
 interface IHostPort {
-  host: string; 
+  host: string;
   port: number;
 }
 
@@ -34,24 +34,33 @@ const createRedisClient = (): Redis.Redis => {
     const hostPort = hosts as IHostPort;
     return new Redis(hostPort.port, hostPort.host);
   } else if (mode === RedisMode.Sentinel) {
-    const group = hosts as ISentinelGroup
-    return new Redis(group); 
+    const group = hosts as ISentinelGroup;
+    return new Redis(group);
   } /* else if (mode === RedisMode.Cluster) {
     const hostArray = hosts as [{ host: string; port: number }]
     return new Redis.Cluster(hostArray);
   } */ else {
-    throw Error(`Unsupported RedisMode: ${stringMode}; Can be Single, Sentinel, or Cluster`);
+    throw Error(
+      `Unsupported RedisMode: ${stringMode}; Can be Single, Sentinel, or Cluster`
+    );
   }
-}
+};
 
-export const createRedisStorageProvider = (): RedisStorageProvider<string, IJob> => {
+export const createRedisStorageProvider = (): RedisPubSubStorageProvider<
+  string,
+  IJob
+> => {
   const redisClient = createRedisClient();
   const redisChannel = createRedisClient();
   const redisOptions = {
     keyPrefix: config.getString(ConfigKey.RedisKeyPrefix),
     keySerializer: new StringSerializer(),
-    valueSerializer: new JobSerializer()
-  } as IRedisStorageProviderOptions<string, IJob>
+    valueSerializer: new JobSerializer(),
+  } as IRedisStorageProviderOptions<string, IJob>;
 
-  return new RedisStorageProvider(redisClient, redisOptions, redisChannel);
-}
+  return new RedisPubSubStorageProvider(
+    redisClient,
+    redisOptions,
+    redisChannel
+  );
+};

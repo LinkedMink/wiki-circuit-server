@@ -1,3 +1,5 @@
+type ResponseData = unknown[] | unknown;
+
 export enum ResponseStatus {
   Success = 0,
   Failed = 1,
@@ -18,21 +20,22 @@ export enum ResponseStatus {
  */
 export interface IResponseData {
   status: ResponseStatus;
-  data: object[] | object | string | null;
+  data: ResponseData;
 }
 
 export const getResponseObject = (
   status: ResponseStatus = ResponseStatus.Success,
-  data: object[] | object | string | null = null): IResponseData => {
+  data: ResponseData = null
+): IResponseData => {
   return { status, data };
 };
 
 export const getResponseSuccess = (
-  data: object[] | object | string | null = null): IResponseData => {
+  data: ResponseData = null
+): IResponseData => {
   return { status: ResponseStatus.Success, data };
 };
 
-export const getResponseFailed = (
-  data: object[] | object | string | null = null): IResponseData => {
+export const getResponseFailed = (data: ResponseData = null): IResponseData => {
   return { status: ResponseStatus.Failed, data };
 };

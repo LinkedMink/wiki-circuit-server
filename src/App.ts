@@ -7,7 +7,10 @@ import { config, ConfigKey } from "./Config";
 import { corsMiddleware } from "./Cors";
 import { errorMiddleware } from "./Error";
 import { pingRouter } from "./Routes/PingRouter";
-import { getArticleJobRouter, jobShutdownHandler } from "./Routes/GetArticleJobRouter";
+import {
+  getArticleJobRouter,
+  jobShutdownHandler,
+} from "./Routes/GetArticleJobRouter";
 import { executeOnExit } from "./Cleanup";
 
 const JOB_BASE_PATH = "/article";
@@ -24,7 +27,7 @@ app.use(errorMiddleware);
 app.use("/", pingRouter);
 app.use(JOB_BASE_PATH, getArticleJobRouter());
 
-executeOnExit(jobShutdownHandler)
+executeOnExit(jobShutdownHandler);
 
 const listenPort = config.getNumber(ConfigKey.ListenPort);
 export const server = app.listen(listenPort);

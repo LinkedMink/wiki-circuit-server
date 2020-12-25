@@ -1,3 +1,5 @@
+export type IsTypeFunc<T> = (toCheck: unknown) => toCheck is T;
+
 export function isError(error: unknown): error is Error {
   return (error as Error).message !== undefined;
 }

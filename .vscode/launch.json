@@ -16,10 +16,7 @@
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "disableOptimisticBPs": true,
-      "env": {
-        "NODE_ENV": "unitTest" 
-      }
+      "disableOptimisticBPs": true
     },
     {
       "type": "node",

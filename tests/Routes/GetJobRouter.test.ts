@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import path from "path";
 import express from "express";
 import { Router } from "express";
 import expressWs from "express-ws";
@@ -26,7 +26,7 @@ class MockAgingCache implements IAgingCache<string, IJob> {
   purge = jest.fn().mockResolvedValue(undefined);
 }
 
-describe("GetJobRouter.ts", () => {
+describe(path.basename(__filename, ".test.ts"), () => {
   let router: Router | null;
 
   const getMockRequestResponse = (): any => {
@@ -55,7 +55,7 @@ describe("GetJobRouter.ts", () => {
       router = getJobRouter(new MockAgingCache(), () => new MockJobWork());
     }
 
-    const routeLayer = router.stack.filter((layer) => {
+    const routeLayer = router.stack.filter(layer => {
       return layer.route.path === path && layer.route.methods[method];
     })[0];
 
@@ -109,6 +109,7 @@ describe("GetJobRouter.ts", () => {
     // Arrange
     const getAllHandler = getRouteHandler("/", "post");
     const mockHttp = getMockRequestResponse();
+    mockHttp.request.body.id = undefined;
 
     // Act
     getAllHandler(mockHttp.request, mockHttp.response);
@@ -176,7 +177,10 @@ describe("GetJobRouter.ts", () => {
 
   test("should handle connection ", () => {
     // Arrange
-    const getProgressHandler = getRouteHandler("/job/progress/.websocket", "get");
+    const getProgressHandler = getRouteHandler(
+      "/job/progress/.websocket",
+      "get"
+    );
     const mockHttp = getMockRequestResponse();
 
     // Act

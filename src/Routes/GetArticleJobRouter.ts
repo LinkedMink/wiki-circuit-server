@@ -1,10 +1,10 @@
-import { 
-  AgingCacheWriteMode, 
-  AgingCacheReplacementPolicy, 
-  IAgingCacheOptions, 
-  MemoryStorageProvider, 
-  StorageHierarchy, 
-  createAgingCache 
+import {
+  AgingCacheWriteMode,
+  AgingCacheReplacementPolicy,
+  IAgingCacheOptions,
+  MemoryStorageProvider,
+  StorageHierarchy,
+  createAgingCache,
 } from "@linkedmink/multilevel-aging-cache";
 
 import { config, ConfigKey } from "../Config";
@@ -18,7 +18,7 @@ const memoryStorageProvider = new MemoryStorageProvider<string, IJob>();
 const redisStorageProvider = createRedisStorageProvider();
 const storageHierarchy = new StorageHierarchy([
   memoryStorageProvider,
-  redisStorageProvider
+  redisStorageProvider,
 ]);
 
 const agingCacheOptions = {
@@ -33,26 +33,26 @@ const jobCache = createAgingCache(storageHierarchy, agingCacheOptions);
 
 export const jobShutdownHandler = async (): Promise<number> => {
   const keys = await memoryStorageProvider.keys();
-  
+
   const stoppingJobs: Promise<void>[] = [];
-  keys.forEach((key) => {
+  keys.forEach(key => {
     const stopPromise = memoryStorageProvider.get(key).then(keyValue => {
       if (keyValue === null) {
         return;
       }
 
-      const status = keyValue.value.status().status
+      const status = keyValue.value.status().status;
       if (status === JobStatus.Running) {
         return keyValue.value.stop();
       }
-    })
+    });
 
     stoppingJobs.push(stopPromise);
-  })
+  });
 
   return Promise.all(stoppingJobs).then(() => 0);
-}
+};
 
 export const getArticleJobRouter = (): Router => {
   return getJobRouter(jobCache, () => new ArticleJobWork());
-}
+};

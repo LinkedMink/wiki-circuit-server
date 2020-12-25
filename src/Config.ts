@@ -2,7 +2,7 @@ import fs from "fs";
 
 export enum Environment {
   Local = "local",
-  UnitTest = "unitTest",
+  UnitTest = "test",
   Development = "development",
   Production = "production",
 }
@@ -33,7 +33,7 @@ const configDefaultMap: Map<ConfigKey, string | undefined> = new Map([
   [ConfigKey.JobCacheKeepMinutes, "120"],
   [ConfigKey.JobCacheMaxEntries, "30"],
   [ConfigKey.RedisMode, "Single"],
-  [ConfigKey.RedisHosts, JSON.stringify({host: "localhost", port: 6379})],
+  [ConfigKey.RedisHosts, JSON.stringify({ host: "localhost", port: 6379 })],
   [ConfigKey.RedisKeyPrefix, "wiki-circuit"],
 ]);
 
@@ -45,15 +45,15 @@ export interface IPackageJson {
 }
 
 export class EnvironmentalConfig {
-  private fileBuffers: Map<ConfigKey, Buffer> = new Map();
+  private fileBuffers = new Map<ConfigKey, Buffer>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private jsonObjects: Map<ConfigKey, any> = new Map();
+  private jsonObjects = new Map<ConfigKey, any>();
   private packageJsonValue: IPackageJson;
 
   constructor() {
     const filePath = "./package.json";
     const data = fs.readFileSync(filePath, "utf8");
-    this.packageJsonValue = JSON.parse(data);
+    this.packageJsonValue = JSON.parse(data) as IPackageJson;
   }
 
   public get isEnvironmentLocal(): boolean {
@@ -65,8 +65,10 @@ export class EnvironmentalConfig {
   }
 
   public get isEnvironmentContainerized(): boolean {
-    return process.env.IS_CONTAINER_ENV !== undefined && 
-      process.env.IS_CONTAINER_ENV.trim().toLowerCase() === 'true';
+    return (
+      process.env.IS_CONTAINER_ENV !== undefined &&
+      process.env.IS_CONTAINER_ENV.trim().toLowerCase() === "true"
+    );
   }
 
   public get packageJson(): IPackageJson {
@@ -75,20 +77,20 @@ export class EnvironmentalConfig {
 
   public getString = (key: ConfigKey): string => {
     return this.getConfigValue(key);
-  }
+  };
 
   public getNumber = (key: ConfigKey): number => {
     const value = this.getConfigValue(key);
     return Number(value);
-  }
+  };
 
   public getBool = (key: ConfigKey): boolean => {
     const value = this.getConfigValue(key);
     return value.trim().toLowerCase() === "true";
-  }
+  };
 
   public getJsonOrString = <T>(key: ConfigKey): string | T => {
-    const json = this.jsonObjects.get(key);
+    const json = this.jsonObjects.get(key) as string | T;
     if (json) {
       return json;
     }
@@ -99,10 +101,10 @@ export class EnvironmentalConfig {
     }
 
     return value;
-  }
+  };
 
   public getJson = <T>(key: ConfigKey): T => {
-    const json = this.jsonObjects.get(key);
+    const json = this.jsonObjects.get(key) as T;
     if (json) {
       return json;
     }
@@ -111,7 +113,7 @@ export class EnvironmentalConfig {
     const parsed = JSON.parse(value) as T;
     this.jsonObjects.set(key, parsed);
     return parsed;
-  }
+  };
 
   public getFileBuffer = (key: ConfigKey): Buffer => {
     const buffer = this.fileBuffers.get(key);
@@ -127,7 +129,7 @@ export class EnvironmentalConfig {
     const data = fs.readFileSync(filePath);
     this.fileBuffers.set(key, data);
     return data;
-  }
+  };
 
   private getConfigValue = (key: ConfigKey): string => {
     let configValue = process.env[key];
@@ -141,7 +143,7 @@ export class EnvironmentalConfig {
     }
 
     throw new Error(`Environmental variable must be defined: ${key}`);
-  }
+  };
 }
 
 export const config = new EnvironmentalConfig();

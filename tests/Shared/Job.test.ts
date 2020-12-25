@@ -1,3 +1,4 @@
+import path from "path";
 import { Job } from "../../src/Shared/Job";
 import { IProgress, JobStatus, IJobWork } from "../../src/Shared/JobInterfaces";
 
@@ -6,7 +7,7 @@ class MockJobWork implements IJobWork {
   stop = jest.fn().mockResolvedValue(undefined);
 }
 
-describe("Job.ts", () => {
+describe(path.basename(__filename, ".test.ts"), () => {
   test("should return job object in ready state", () => {
     // Arrange
     const testId = "TEST";

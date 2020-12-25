@@ -1,6 +1,7 @@
+import path from "path";
 import { mapToObject } from "../../src/Shared/CollectionHelpers";
 
-describe("CollectionHelpers.ts", () => {
+describe(path.basename(__filename, ".test.ts"), () => {
   test("mapToObject should return object with map keys as object keys", () => {
     // Arrange
     const testKey1 = "TEST_KEY1";

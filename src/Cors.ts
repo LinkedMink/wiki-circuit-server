@@ -18,11 +18,14 @@ interface ICorsOptions {
 
 const originsData = config.getJsonOrString<string[]>(ConfigKey.AllowedOrigins);
 
-let origin: string | OriginFunction
+let origin: string | OriginFunction;
 if (isString(originsData)) {
   origin = originsData;
 } else {
-  origin = (origin: string | undefined, callback: ReportOriginFunction): void => {
+  origin = (
+    origin: string | undefined,
+    callback: ReportOriginFunction
+  ): void => {
     if (origin !== undefined && originsData.includes(origin)) {
       callback(null, true);
     } else {

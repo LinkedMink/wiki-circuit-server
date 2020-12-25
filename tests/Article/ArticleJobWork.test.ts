@@ -1,6 +1,7 @@
+import path from "path";
 import { ArticleJobWork } from "../../src/Article/ArticleJobWork";
 
-describe("ArticleJobWork.ts", () => {
+describe(path.basename(__filename, ".test.ts"), () => {
   test("should return work object", () => {
     // Act
     const work = new ArticleJobWork();
