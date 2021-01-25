@@ -1,6 +1,6 @@
 {
   "name": "wiki-circuit-server",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "The server component of the Wiki Circuit project",
   "license": "MIT",
   "author": {
@@ -24,7 +24,7 @@
     "containerize": "npm run build && docker build -t linkedmink/wiki-circuit-server ."
   },
   "dependencies": {
-    "@linkedmink/multilevel-aging-cache": "~0.2.2",
+    "@linkedmink/multilevel-aging-cache": "~0.2.3",
     "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.5",
     "cors": "^2.8.5",

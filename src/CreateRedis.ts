@@ -25,7 +25,7 @@ interface ISentinelGroup {
   name: string;
 }
 
-const createRedisClient = (): Redis.Redis => {
+const createRedisClient = (): Redis.Redis | Redis.Cluster => {
   const hosts = config.getJson(ConfigKey.RedisHosts);
   const stringMode = config.getString(ConfigKey.RedisMode);
   const mode = stringMode as RedisMode;
@@ -36,10 +36,10 @@ const createRedisClient = (): Redis.Redis => {
   } else if (mode === RedisMode.Sentinel) {
     const group = hosts as ISentinelGroup;
     return new Redis(group);
-  } /* else if (mode === RedisMode.Cluster) {
-    const hostArray = hosts as [{ host: string; port: number }]
+  } else if (mode === RedisMode.Cluster) {
+    const hostArray = hosts as IHostPort[]
     return new Redis.Cluster(hostArray);
-  } */ else {
+  } else {
     throw Error(
       `Unsupported RedisMode: ${stringMode}; Can be Single, Sentinel, or Cluster`
     );

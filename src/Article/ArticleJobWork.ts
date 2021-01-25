@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import fetch, { RequestInit } from "node-fetch";
 
 import { config, ConfigKey } from "../Config";
 import { mapToObject } from "../Shared/CollectionHelpers";
@@ -117,7 +117,14 @@ export class ArticleJobWork implements IJobWork {
     };
 
     const url = WIKIPEDIA_ARTICLE_BASE_URL + articleName;
-    downloadPromise = fetch(url, { method: "GET" })
+    const options = { 
+      method: "GET",
+      headers: {
+        'User-Agent': config.getString(ConfigKey.JobUserAgent)
+      } 
+    } as RequestInit;
+
+    downloadPromise = fetch(url, options)
       .then(response => {
         if (!response.ok) {
           this.finishError(
