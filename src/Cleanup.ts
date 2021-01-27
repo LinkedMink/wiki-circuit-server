@@ -1,12 +1,12 @@
 import path from "path";
 import { Logger } from "./Logger";
 
-const logger = Logger.get(path.basename(__filename));
-
 export type ExitFunction = () => number | Promise<number>;
 const NoOpHandler: ExitFunction = () => 0;
 
 export const executeOnExit = (handler = NoOpHandler): void => {
+  const logger = Logger.get(path.basename(__filename));
+
   const wrappedHandler = (): void => {
     process.stdin.resume();
     const handlerResult = handler();

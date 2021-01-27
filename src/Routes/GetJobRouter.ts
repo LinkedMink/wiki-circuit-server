@@ -20,12 +20,12 @@ import { Logger } from "../Logger";
 const MAX_CACHE_MS =
   config.getNumber(ConfigKey.JobCacheKeepMinutes) * 60 * 1000;
 
-const logger = Logger.get(path.basename(__filename));
-
 export const getJobRouter = (
   jobCache: IAgingCache<string, IJob>,
   createWork: () => IJobWork
 ): Router => {
+  const logger = Logger.get(path.basename(__filename));
+
   const router = express.Router();
 
   const jobProgressUpdater = (job: IJob): void => {

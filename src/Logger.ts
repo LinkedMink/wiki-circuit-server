@@ -50,13 +50,13 @@ export const getRequestLoggerHandler = (): RequestHandler => {
     next: NextFunction
   ): void => {
     const start = Date.now();
-    logger.http(`Start ${req.method} ${req.url}`);
+    logger.http(`Start ${req.method} ${req.originalUrl}`);
 
     next();
 
     const elapsed = Date.now() - start;
     logger.http(
-      `Ended ${req.method} ${req.url} ${res.statusCode} ${elapsed} ms`
+      `Ended ${req.method} ${req.originalUrl} ${res.statusCode} ${elapsed} ms`
     );
   };
 };
@@ -70,7 +70,7 @@ const initLogger = (): void => {
     winston.format.timestamp(),
     winston.format.printf(info => {
       const label = info.label ? ` ${info.label}` : "";
-      const stack = (info.stackv as string) ?? "";
+      const stack = (info.stack as string) ?? "";
       return `${info.timestamp} ${info.level}${label}: ${info.message}${stack}`;
     })
   );
@@ -100,21 +100,12 @@ const initLogger = (): void => {
 
   Logger.options = options;
 
-  process.on("unhandledRejection", (reason, p) => {
-    const logger = Logger.get();
+  process.on("unhandledRejection", (error, p) => {
+    const logger = Logger.get("unhandledRejection");
 
-    let errorMessage = `Unhandled Promise Rejection`;
-
-    const error = reason as Error;
-    if (error.message) {
-      errorMessage += `, message: ${error.message}`;
+    if (error) {
+      logger.error(error);
     }
-
-    if (error.stack) {
-      errorMessage += `, stack: ${error.stack}`;
-    }
-
-    logger.error(errorMessage);
   });
 };
 

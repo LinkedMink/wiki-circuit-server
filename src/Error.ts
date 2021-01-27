@@ -1,11 +1,10 @@
+import { ErrorRequestHandler, NextFunction } from "express";
+import { ParamsDictionary, Request, Response } from "express-serve-static-core";
+import path from "path";
 import { Logger } from "./Logger";
 import { getResponseObject, ResponseStatus } from "./Models/IResponseData";
 import { CORS_ERROR } from "./Cors";
-import { ErrorRequestHandler, NextFunction } from "express";
-import { ParamsDictionary, Request, Response } from "express-serve-static-core";
 import { isError } from "./Shared/Core";
-
-const logger = Logger.get(Error.name);
 
 export class UserInputError extends Error {
   private inputErrorValue: boolean;
@@ -30,6 +29,7 @@ export const errorMiddleware: ErrorRequestHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  const logger = Logger.get(path.basename(__filename));
   logger.error(error as Record<string, string>);
 
   if (isError(error)) {

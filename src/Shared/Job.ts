@@ -14,7 +14,7 @@ const progressReportThreshold = config.getNumber(
 );
 
 export class Job implements IJob {
-  private static readonly logger = Logger.get(Job.name);
+  private readonly logger = Logger.get(Job.name);
   private lastProgressReport = 0;
 
   progress(value: IProgress): void {
@@ -63,7 +63,7 @@ export class Job implements IJob {
 
     this.work.doWork(this, params);
 
-    Job.logger.info(`Started: ${this.id} @ ${this.startTime}`);
+    this.logger.info(`Started: ${this.id} @ ${this.startTime}`);
   };
 
   public stop = (): Promise<void> => {
@@ -80,12 +80,12 @@ export class Job implements IJob {
   public fault = (error?: Error | string): void => {
     if (typeof error === "string") {
       this.progressState.message = error;
-      Job.logger.error(error);
+      this.logger.error(error);
     } else if (error instanceof Error) {
       this.progressState.message = error.message;
-      Job.logger.error(error.message);
+      this.logger.error(error.message);
       if (error.stack) {
-        Job.logger.error(error.stack);
+        this.logger.error(error.stack);
       }
     }
 
@@ -97,7 +97,7 @@ export class Job implements IJob {
     this.endTime = Date.now();
     this.runTime = this.endTime - this.startTime;
 
-    Job.logger.info(
+    this.logger.info(
       `Finished: ${this.id} @ ${this.endTime} ran for ${this.runTime}`
     );
     this.reportProgress();
