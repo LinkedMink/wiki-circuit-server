@@ -30,12 +30,9 @@ export const errorMiddleware: ErrorRequestHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  if (isError(error)) {
-    logger.error(error.message);
-    if (error.stack) {
-      logger.error(error.stack);
-    }
+  logger.error(error as Record<string, string>);
 
+  if (isError(error)) {
     if (UserInputError.isThisType(error)) {
       res.status(400);
       return res.send(getResponseObject(ResponseStatus.Failed, error.message));
@@ -43,8 +40,6 @@ export const errorMiddleware: ErrorRequestHandler = (
       res.status(401);
       return res.send(getResponseObject(ResponseStatus.Failed, error.message));
     }
-  } else if (typeof error === "string" || error instanceof String) {
-    logger.error(error);
   }
 
   res.status(500);

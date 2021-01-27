@@ -13,46 +13,59 @@ import { getJobRouter } from "./GetJobRouter";
 import { IJob, JobStatus } from "../Shared/JobInterfaces";
 import { createRedisStorageProvider } from "../CreateRedis";
 import { Router } from "express";
+import { ExitFunction } from "../Cleanup";
 
-const memoryStorageProvider = new MemoryStorageProvider<string, IJob>();
-const redisStorageProvider = createRedisStorageProvider();
-const storageHierarchy = new StorageHierarchy([
-  memoryStorageProvider,
-  redisStorageProvider,
-]);
+const getExitHandler = (
+  memoryStorageProvider: MemoryStorageProvider<string, IJob>
+): ExitFunction => {
+  return async () => {
+    const keys = await memoryStorageProvider.keys();
 
-const agingCacheOptions = {
-  maxEntries: config.getNumber(ConfigKey.JobCacheMaxEntries),
-  ageLimit: config.getNumber(ConfigKey.JobCacheKeepMinutes),
-  replacementPolicy: AgingCacheReplacementPolicy.FIFO,
-  setMode: AgingCacheWriteMode.OverwriteAged,
-  deleteMode: AgingCacheWriteMode.OverwriteAged,
-} as IAgingCacheOptions;
+    const stoppingJobs: Promise<void>[] = [];
+    keys.forEach(key => {
+      const stopPromise = memoryStorageProvider.get(key).then(keyValue => {
+        if (keyValue === null) {
+          return;
+        }
 
-const jobCache = createAgingCache(storageHierarchy, agingCacheOptions);
+        const status = keyValue.value.status().status;
+        if (status === JobStatus.Running) {
+          return keyValue.value.stop();
+        }
+      });
 
-export const jobShutdownHandler = async (): Promise<number> => {
-  const keys = await memoryStorageProvider.keys();
-
-  const stoppingJobs: Promise<void>[] = [];
-  keys.forEach(key => {
-    const stopPromise = memoryStorageProvider.get(key).then(keyValue => {
-      if (keyValue === null) {
-        return;
-      }
-
-      const status = keyValue.value.status().status;
-      if (status === JobStatus.Running) {
-        return keyValue.value.stop();
-      }
+      stoppingJobs.push(stopPromise);
     });
 
-    stoppingJobs.push(stopPromise);
-  });
-
-  return Promise.all(stoppingJobs).then(() => 0);
+    return Promise.all(stoppingJobs).then(() => 0);
+  };
 };
 
-export const getArticleJobRouter = (): Router => {
-  return getJobRouter(jobCache, () => new ArticleJobWork());
+interface IArticleHandler {
+  router: Router;
+  exitHandler: ExitFunction;
+}
+
+export const getArticleJobRouter = (): IArticleHandler => {
+  const memoryStorageProvider = new MemoryStorageProvider<string, IJob>();
+  const redisStorageProvider = createRedisStorageProvider();
+  const storageHierarchy = new StorageHierarchy([
+    memoryStorageProvider,
+    redisStorageProvider,
+  ]);
+
+  const agingCacheOptions = {
+    maxEntries: config.getNumber(ConfigKey.JobCacheMaxEntries),
+    ageLimit: config.getNumber(ConfigKey.JobCacheKeepMinutes),
+    replacementPolicy: AgingCacheReplacementPolicy.FIFO,
+    setMode: AgingCacheWriteMode.OverwriteAged,
+    deleteMode: AgingCacheWriteMode.OverwriteAged,
+  } as IAgingCacheOptions;
+
+  const jobCache = createAgingCache(storageHierarchy, agingCacheOptions);
+
+  return {
+    router: getJobRouter(jobCache, () => new ArticleJobWork()),
+    exitHandler: getExitHandler(memoryStorageProvider),
+  };
 };

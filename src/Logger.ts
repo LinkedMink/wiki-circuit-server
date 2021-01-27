@@ -1,4 +1,6 @@
 import { Logger as CacheLogger } from "@linkedmink/multilevel-aging-cache";
+import { NextFunction, Request, RequestHandler, Response } from "express";
+import { ParamsDictionary } from "express-serve-static-core";
 import winston, { LoggerOptions } from "winston";
 import TransportStream from "winston-transport";
 
@@ -39,46 +41,81 @@ export class Logger {
   private static optionsValue: LoggerOptions;
 }
 
-const transports: TransportStream[] = [];
+export const getRequestLoggerHandler = (): RequestHandler => {
+  const logger = Logger.get("Request");
 
-if (!config.isEnvironmentUnitTest) {
-  transports.push(
-    new winston.transports.Console({
-      format: winston.format.simple(),
+  return (
+    req: Request<ParamsDictionary>,
+    res: Response,
+    next: NextFunction
+  ): void => {
+    const start = Date.now();
+    logger.http(`Start ${req.method} ${req.url}`);
+
+    next();
+
+    const elapsed = Date.now() - start;
+    logger.http(
+      `Ended ${req.method} ${req.url} ${res.statusCode} ${elapsed} ms`
+    );
+  };
+};
+
+const initLogger = (): void => {
+  const transports: TransportStream[] = [];
+  const format = winston.format.combine(
+    winston.format.errors({ stack: true }),
+    winston.format.colorize(),
+    winston.format.label(),
+    winston.format.timestamp(),
+    winston.format.printf(info => {
+      const label = info.label ? ` ${info.label}` : "";
+      const stack = (info.stackv as string) ?? "";
+      return `${info.timestamp} ${info.level}${label}: ${info.message}${stack}`;
     })
   );
-}
 
-if (!config.isEnvironmentContainerized) {
-  transports.push(
-    new winston.transports.File({
-      filename: config.getString(ConfigKey.LogFile),
-      format: winston.format.json(),
-    })
-  );
-}
-
-const options = {
-  level: config.getString(ConfigKey.LogLevel),
-  defaultMeta: { service: config.packageJson.name },
-  transports,
-} as LoggerOptions;
-
-Logger.options = options;
-
-process.on("unhandledRejection", (reason, p) => {
-  const logger = Logger.get();
-
-  let errorMessage = `Unhandled Promise Rejection`;
-
-  const error = reason as Error;
-  if (error.message) {
-    errorMessage += `, message: ${error.message}`;
+  if (!config.isEnvironmentUnitTest) {
+    transports.push(
+      new winston.transports.Console({
+        format,
+      })
+    );
   }
 
-  if (error.stack) {
-    errorMessage += `, stack: ${error.stack}`;
+  if (!config.isEnvironmentContainerized) {
+    transports.push(
+      new winston.transports.File({
+        filename: config.getString(ConfigKey.LogFile),
+        format,
+      })
+    );
   }
 
-  logger.error(errorMessage);
-});
+  const options = {
+    level: config.getString(ConfigKey.LogLevel),
+    // defaultMeta: { service: config.packageJson.name, version: config.packageJson.version },
+    transports,
+  } as LoggerOptions;
+
+  Logger.options = options;
+
+  process.on("unhandledRejection", (reason, p) => {
+    const logger = Logger.get();
+
+    let errorMessage = `Unhandled Promise Rejection`;
+
+    const error = reason as Error;
+    if (error.message) {
+      errorMessage += `, message: ${error.message}`;
+    }
+
+    if (error.stack) {
+      errorMessage += `, stack: ${error.stack}`;
+    }
+
+    logger.error(errorMessage);
+  });
+};
+
+export { initLogger };

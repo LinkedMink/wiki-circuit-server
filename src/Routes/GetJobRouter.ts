@@ -1,4 +1,5 @@
 import express, { Request, Response, Router } from "express";
+import path from "path";
 import {
   IAgingCache,
   AgingCacheWriteStatus,
@@ -13,6 +14,13 @@ import {
   isIJobIdParams,
   isIJobStartParams,
 } from "../Models/IJobParameters";
+import { config, ConfigKey } from "../Config";
+import { Logger } from "../Logger";
+
+const MAX_CACHE_MS =
+  config.getNumber(ConfigKey.JobCacheKeepMinutes) * 60 * 1000;
+
+const logger = Logger.get(path.basename(__filename));
 
 export const getJobRouter = (
   jobCache: IAgingCache<string, IJob>,
@@ -98,8 +106,11 @@ export const getJobRouter = (
       return startJob(params.id, req, res);
     }
 
-    if (!params.refresh) {
-      if (job.status().status === JobStatus.Complete) {
+    const jobState = job.status();
+    if (!params.refresh && Date.now() < jobState.endTime + MAX_CACHE_MS) {
+      logger.debug(JSON.stringify(jobState));
+
+      if (jobState.status === JobStatus.Complete) {
         res.status(400);
         res.send(
           getResponseFailed(`Job already completed and cached: ${params.id}`)
@@ -107,7 +118,7 @@ export const getJobRouter = (
         return;
       }
 
-      if (job.status().status !== JobStatus.Faulted) {
+      if (jobState.status !== JobStatus.Faulted) {
         res.status(400);
         res.send(getResponseFailed(`Job already started: ${params.id}`));
         return;
@@ -115,7 +126,10 @@ export const getJobRouter = (
     }
 
     const deleteStatus = await jobCache.delete(params.id, true);
-    if (deleteStatus == AgingCacheWriteStatus.Success) {
+    if (
+      deleteStatus == AgingCacheWriteStatus.Success ||
+      deleteStatus == AgingCacheWriteStatus.PartialWrite
+    ) {
       return startJob(params.id, req, res);
     }
 

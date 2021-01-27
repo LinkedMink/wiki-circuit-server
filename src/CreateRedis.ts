@@ -1,8 +1,8 @@
+import { StringSerializer } from "@linkedmink/multilevel-aging-cache";
 import {
   RedisPubSubStorageProvider,
   IRedisStorageProviderOptions,
-  StringSerializer,
-} from "@linkedmink/multilevel-aging-cache";
+} from "@linkedmink/multilevel-aging-cache-ioredis";
 import Redis from "ioredis";
 
 import { config, ConfigKey } from "./Config";
@@ -37,7 +37,7 @@ const createRedisClient = (): Redis.Redis | Redis.Cluster => {
     const group = hosts as ISentinelGroup;
     return new Redis(group);
   } else if (mode === RedisMode.Cluster) {
-    const hostArray = hosts as IHostPort[]
+    const hostArray = hosts as IHostPort[];
     return new Redis.Cluster(hostArray);
   } else {
     throw Error(

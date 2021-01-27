@@ -33,7 +33,10 @@ const configDefaultMap: Map<ConfigKey, string | undefined> = new Map([
   [ConfigKey.JobProgressReportThreshold, "0.05"],
   [ConfigKey.JobCacheKeepMinutes, "120"],
   [ConfigKey.JobCacheMaxEntries, "30"],
-  [ConfigKey.JobUserAgent, "wiki-circuit-server/1.2 (https://github.com/LinkedMink/wiki-circuit-server) node-fetch/2.0"],
+  [
+    ConfigKey.JobUserAgent,
+    "wiki-circuit-server/1.2 (https://github.com/LinkedMink/wiki-circuit-server) node-fetch/2.0",
+  ],
   [ConfigKey.RedisMode, "Single"],
   [ConfigKey.RedisHosts, JSON.stringify({ host: "localhost", port: 6379 })],
   [ConfigKey.RedisKeyPrefix, "wiki-circuit"],

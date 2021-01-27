@@ -25,6 +25,7 @@ module.exports = {
       },
     ],
     "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
   },
   overrides: [
     {

@@ -1,6 +1,6 @@
 {
   "name": "wiki-circuit-server",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "The server component of the Wiki Circuit project",
   "license": "MIT",
   "author": {
@@ -19,12 +19,13 @@
     "watch": "ts-node-dev --respawn --transpileOnly ./src/App.ts",
     "test": "jest",
     "test:debug": "jest --cache=false --detectOpenHandles --runInBand",
-    "lint": "eslint -c .eslintrc.js --ext .ts ./src",
-    "format": "prettier --write ./src/**/*.ts ./tests/**/*.ts ./*.js ./*.json",
+    "lint": "eslint -c .eslintrc.js --ext .ts src",
+    "format": "prettier --write src/**/*.ts tests/**/*.ts *.js *.json",
     "containerize": "npm run build && docker build -t linkedmink/wiki-circuit-server ."
   },
   "dependencies": {
-    "@linkedmink/multilevel-aging-cache": "~0.2.3",
+    "@linkedmink/multilevel-aging-cache": "~0.4.3",
+    "@linkedmink/multilevel-aging-cache-ioredis": "~0.4.3",
     "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.5",
     "cors": "^2.8.5",
@@ -33,7 +34,6 @@
     "express-ws": "^4.0.0",
     "ioredis": "^4.19.4",
     "mongodb": "^3.6.3",
-    "morgan": "^1.10.0",
     "node-fetch": "^2.6.1",
     "winston": "^3.3.3"
   },
@@ -46,7 +46,6 @@
     "@types/ioredis": "^4.17.10",
     "@types/jest": "^26.0.19",
     "@types/mongodb": "^3.6.3",
-    "@types/morgan": "^1.9.2",
     "@types/node-fetch": "^2.5.7",
     "@types/ws": "^7.4.0",
     "@typescript-eslint/eslint-plugin": "^4.11.0",

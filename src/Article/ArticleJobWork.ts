@@ -117,11 +117,11 @@ export class ArticleJobWork implements IJobWork {
     };
 
     const url = WIKIPEDIA_ARTICLE_BASE_URL + articleName;
-    const options = { 
+    const options = {
       method: "GET",
       headers: {
-        'User-Agent': config.getString(ConfigKey.JobUserAgent)
-      } 
+        "User-Agent": config.getString(ConfigKey.JobUserAgent),
+      },
     } as RequestInit;
 
     downloadPromise = fetch(url, options)
