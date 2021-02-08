@@ -1,33 +1,33 @@
 import bodyParser from "body-parser";
 import express from "express";
-import expressWs from "express-ws";
 
-import { config, ConfigKey } from "./Config";
-import { corsMiddleware } from "./Cors";
-import { errorMiddleware } from "./Error";
-import { pingRouter } from "./Routes/PingRouter";
-import { getArticleJobRouter } from "./Routes/GetArticleJobRouter";
-import { executeOnExit } from "./Cleanup";
-import { getRequestLoggerHandler, initLogger } from "./Logger";
+import { config } from "./infastructure/Config";
+import { ConfigKey } from "./infastructure/ConfigKey";
+import { initializeLogger, Logger } from "./infastructure/Logger";
+import { getErrorMiddleware } from "./middleware/Error";
+import { logRequestMiddleware } from "./middleware/LogRequest";
+import { getOpenApiRouter } from "./routes/OpenApiRouter";
+import { pingRouter } from "./routes/PingRouter";
 
-initLogger();
-
-const JOB_BASE_PATH = "/article";
+initializeLogger();
 
 const app = express();
-expressWs(app);
 
-app.use(getRequestLoggerHandler());
+app.use(logRequestMiddleware());
 app.use(bodyParser.json());
 
-app.use(corsMiddleware);
-app.use(errorMiddleware);
-
 app.use("/", pingRouter);
+app.use(getErrorMiddleware());
 
-const handlers = getArticleJobRouter();
-app.use(JOB_BASE_PATH, handlers.router);
-executeOnExit(handlers.exitHandler);
+void getOpenApiRouter()
+  .then(router => {
+    app.use("/docs", router);
+    Logger.get().info("Swagger UI Path: /docs");
+  })
+  .catch(error => {
+    Logger.get().info("Swagger Disabled");
+    Logger.get().verbose({ message: error as Error });
+  });
 
 const listenPort = config.getNumber(ConfigKey.ListenPort);
 export const server = app.listen(listenPort);

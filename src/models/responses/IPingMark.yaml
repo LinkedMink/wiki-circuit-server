@@ -1,0 +1,24 @@
+components:
+  schemas:
+    IPingMark:
+      type: object
+      properties:
+        mark:
+          type: integer
+          format: int64
+          example: 1591227886882
+        application:
+          type: string
+          nullable: true
+          example: node-user-service
+        version:
+          type: string
+          nullable: true
+          example: 0.9.7
+    PingMarkResponse:
+      allOf:
+      - $ref: '#/components/schemas/IResponseData'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/IPingMark'

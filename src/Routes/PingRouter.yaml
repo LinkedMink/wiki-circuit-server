@@ -1,0 +1,12 @@
+paths:
+  /:
+    get:
+      description: Get a response to determine if the service is running
+      tags: [Ping]
+      responses:
+        200:
+          description: The package name and version that's running this service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingMarkResponse'

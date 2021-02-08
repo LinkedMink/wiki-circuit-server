@@ -1,60 +1,26 @@
 import { Router } from "express";
-import { ParamsDictionary, Request, Response } from "express-serve-static-core";
+import { Request, Response } from "express";
 
-import { config, Environment } from "../Config";
-import { getResponseObject } from "../Models/IResponseData";
+import { config } from "../infastructure/Config";
+import { response } from "../models/responses/IResponseData";
+import { IPingMark } from "../models/responses/IPingMark";
 
 export const pingRouter = Router();
 
-/**
- * @swagger
- * definitions:
- *   PingMark:
- *     type: object
- *     properties:
- *       mark:
- *         type: integer
- *       application:
- *         type: string
- *       version:
- *         type: string
- *   PingSuccessResponse:
- *     type: object
- *     properties:
- *       status:
- *         type: integer
- *       data:
- *         type: object
- *         schema:
- *           $ref: '#/definitions/PingMark'
- *
- * /ping:
- *   get:
- *     description: Get a response to determine if the service is running
- *     tags: [Ping]
- *     responses:
- *       200:
- *         description: The package name and version that's running this service
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/definitions/PingSuccessResponse'
- */
-pingRouter.get("/", (req: Request<ParamsDictionary>, res: Response) => {
-  const pingResponse = getResponseObject();
-
-  if (process.env.NODE_ENV === Environment.Production) {
-    pingResponse.data = {
-      mark: Date.now(),
-      application: config.packageJson.name,
-    };
+pingRouter.get("/", (req: Request, res: Response) => {
+  if (config.isEnvironmentProd) {
+    res.send(
+      response.success<IPingMark>({
+        mark: Date.now(),
+      })
+    );
   } else {
-    pingResponse.data = {
-      mark: Date.now(),
-      application: config.packageJson.name,
-      version: config.packageJson.version,
-    };
+    res.send(
+      response.success<IPingMark>({
+        mark: Date.now(),
+        application: config.packageJson.name,
+        version: config.packageJson.version,
+      })
+    );
   }
-
-  res.send(pingResponse);
 });

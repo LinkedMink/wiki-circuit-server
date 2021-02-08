@@ -1,0 +1,23 @@
+# really-simple-scheduler
+# npm run addClaims -- ./TaskTypes.yaml
+TaskTypes:
+- name: ArticleLinkScan
+  description: 'Scan a Wikipedia for links between articles'
+  permissions:
+    baseClaimName: ArticleLinkScan
+  isProgressReported: true
+  isSuspendable: true
+  isCancelable: true
+  keepInactiveForMinutes: 180
+  parameterSchema:
+    type: object
+    properties:
+      name:
+        type: string
+      depth:
+        type: integer
+        format: int32
+    required:
+    - name
+  resultSchema:
+    type: object

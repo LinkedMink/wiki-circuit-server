@@ -1,0 +1,21 @@
+components:
+  schemas:
+    IResponseData:
+      properties:
+        status:
+          type: integer
+          format: int32
+          example: 0
+          description: '{
+            Success = 0,
+            Failed = 1,
+            RequestValidation = 10,
+            DataValidation = 11}'
+    StringResponse:
+      allOf:
+      - $ref: '#/components/schemas/IResponseData'
+      - type: object
+        properties:
+          data:
+            type: string
+            nullable: true

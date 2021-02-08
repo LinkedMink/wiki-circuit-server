@@ -1,0 +1,9 @@
+# node-user-service
+# npm run addUsers -- ./Users.yaml
+Users:
+- email: 'wiki-circuit-processor@linkedmink.space'
+  password: 'MySecret$1'
+  claims:
+  - 'ArticleLinkScanRead'
+  - 'ArticleLinkScanSchedule'
+  - 'ArticleLinkScanManage'

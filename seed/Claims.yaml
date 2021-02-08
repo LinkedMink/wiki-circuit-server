@@ -1,0 +1,15 @@
+# node-user-service
+# npm run addClaims -- ./Claims.yaml
+Claims:
+- name: "ArticleLinkScanRead"
+  applications:
+  - "really-simple-scheduler"
+  - "wiki-circuit-processor"
+- name: "ArticleLinkScanSchedule"
+  applications:
+  - "really-simple-scheduler"
+  - "wiki-circuit-processor"
+- name: "ArticleLinkScanManage"
+  applications:
+  - "really-simple-scheduler"
+  - "wiki-circuit-processor"

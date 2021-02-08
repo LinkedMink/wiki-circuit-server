@@ -2,27 +2,35 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wiki-circuit-server
+  name: wiki-circuit-task-processor
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: wiki-circuit-server
+      app: wiki-circuit-task-processor
   template:
     metadata:
       labels:
-        app: wiki-circuit-server
+        app: wiki-circuit-task-processor
     spec:
       nodeSelector:
         "kubernetes.io/os": linux
+      volumes:
+      - name: jwt-public-key
+        secret:
+          secretName: jwt-public-key
       containers:
-      - name: wiki-circuit-server
-        image: linkedmink/wiki-circuit-server
+      - name: wiki-circuit-task-processor
+        image: linkedmink/wiki-circuit-task-processor
         ports:
         - containerPort: 8080
         env:
-        - name: ALLOWED_ORIGINS
-          value: '["https://wiki-circuit.linkedmink.space","http://wiki-circuit.linkedmink.space"]'
+        - name: JWT_SECRET_KEY_FILE
+          value: "jwtRS256.key.pub"
+        - name: JWT_AUDIENCE
+          value: "client.[Your Domain]"
+        - name: JWT_ISSUER
+          value: "api.[Your Domain]"
         - name: JOB_MAX_DEPTH
           value: "2"
         - name: JOB_MAX_PARALLEL_DOWNLOADS
@@ -36,9 +44,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: wiki-circuit-server
+  name: wiki-circuit-task-processor
 spec:
   ports:
   - port: 8080
   selector:
-    app: wiki-circuit-server
+    app: wiki-circuit-task-processor
