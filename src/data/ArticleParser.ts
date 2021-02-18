@@ -36,23 +36,18 @@ const WIKIPEDIA_ARTICLE_PREFIX = "/wiki/";
 const WIKIPEDIA_CONTENT_ID = "#mw-content-text";
 const WIKIPEDIA_EXCLUDE_CONTENT_BLOCKS = "#Authority_control_files, .reflist";
 
-export const findLinksInArticle = (text: string): { [s: string]: number } => {
-  const links: { [s: string]: number } = {};
-
+export const findLinksInArticle = (text: string): Record<string, number> => {
+  const links = {} as Record<string, number>;
   const document = cheerio.load(text);
   document(WIKIPEDIA_CONTENT_ID)
     .find(`a[href^='${WIKIPEDIA_ARTICLE_PREFIX}']`)
     .each((index: number, element: cheerio.Element) => {
-      if (
-        document(element).parents(WIKIPEDIA_EXCLUDE_CONTENT_BLOCKS).length > 0
-      ) {
+      if (document(element).parents(WIKIPEDIA_EXCLUDE_CONTENT_BLOCKS).length > 0) {
         return;
       }
 
       const tag = element as cheerio.TagElement;
-      const linkName = tag.attribs.href.substring(
-        WIKIPEDIA_ARTICLE_PREFIX.length
-      );
+      const linkName = tag.attribs.href.substring(WIKIPEDIA_ARTICLE_PREFIX.length);
       if (!testWikipediaNamespaceRegEx.test(linkName)) {
         if (links[linkName] === undefined) {
           links[linkName] = 1;

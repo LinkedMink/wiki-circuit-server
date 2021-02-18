@@ -18,7 +18,7 @@
     "build:prod": "tsc --project ./tsconfig.prod.json",
     "postbuild": "npm run buildPostCombined",
     "postbuild:prod": "npm run buildPostCombined",
-    "buildPostCombined": "node -r dotenv/config ./build/scripts/CreateOpenApiDoc.js",
+    "buildPostCombined": "node -r dotenv/config --experimental-modules ./build/scripts/CreateOpenApiDoc.js",
     "startBuilt": "node -r dotenv/config ./build/App.js",
     "test": "jest --config jest.config.js",
     "test:debug": "jest --config jest.debug.config.js --cache=false --detectOpenHandles --runInBand",
@@ -27,11 +27,13 @@
     "containerize": "npm run build && docker build -t linkedmink/wiki-circuit-server ."
   },
   "bin": {
-    "wiki-circuit-processor": "./build/App.js"
+    "wiki-circuit-task-processor": "./build/App.js"
   },
   "dependencies": {
-    "@linkedmink/multilevel-aging-cache": "~0.4.5",
-    "@linkedmink/multilevel-aging-cache-ioredis": "~0.4.5",
+    "@linkedmink/multilevel-aging-cache": "~0.4.9",
+    "@linkedmink/multilevel-aging-cache-ioredis": "~0.4.9",
+    "@linkedmink/passport-mutual-key-challenge-client": "~0.1.1",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.5",
     "dotenv": "^8.2.0",
@@ -39,7 +41,7 @@
     "express-openapi-validate": "^0.5.1",
     "ioredis": "^4.19.4",
     "jsonwebtoken": "^8.5.1",
-    "node-fetch": "^2.6.1",
+    "socket.io-client": "^3.1.1",
     "winston": "^3.3.3"
   },
   "devDependencies": {
@@ -48,7 +50,7 @@
     "@types/ioredis": "^4.17.10",
     "@types/jest": "^26.0.19",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node-fetch": "^2.5.7",
+    "@types/node": "^14.14.28",
     "@types/swagger-jsdoc": "^6.0.0",
     "@types/swagger-ui-express": "^4.1.2",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
